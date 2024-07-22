@@ -1,6 +1,8 @@
 import User from "../models/userModel.js";
+import path from "path";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs/dist/bcrypt.js";
+import fs from "fs";
 import createToken from "../utils/createToken.js";
 
 const createUser = asyncHandler(async (req, res) => {
@@ -124,6 +126,7 @@ const getCurrentUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      image: user.image,
     });
   } else {
     res.status(404);
@@ -133,43 +136,66 @@ const getCurrentUserProfile = asyncHandler(async (req, res) => {
 
 const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
+
   if (user) {
     user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
 
+    if (req.file) {
+      if (user.image) {
+        const ImagePath = path.join("uploads", user.image);
+        const existingImagePath=ImagePath.replace('uploads\\','')
+
+        
+        //Deleting the image if user provide new image
+        fs.unlink(existingImagePath, (err) => {
+          if (err) {
+            console.error("Failed to delete existing image:", err);
+          } else {
+            console.log("Success deleted existing image:", existingImagePath);
+          }
+        });
+      }
+      user.image = req.file.path;
+    }
+
     if (req.body.password) {
       const pwd = req.body.password;
+
+      // Password validation
       const validatePassword = (pwd) => {
         // Check if the password is at least 8 characters long
-        if (pwd.length < 8 || pwd > 12) {
+        if (pwd.length < 8 || pwd.length > 12) {
           return false;
         }
 
-        // Check if the pwd contains at least one uppercase letter
+        // Check if the password contains at least one uppercase letter
         if (!/[A-Z]/.test(pwd)) {
           return false;
         }
 
-        // Check if the pwd contains at least one lowercase letter
+        // Check if the password contains at least one lowercase letter
         if (!/[a-z]/.test(pwd)) {
           return false;
         }
 
-        // Check if the pwd contains at least one number
+        // Check if the password contains at least one number
         if (!/\d/.test(pwd)) {
           return false;
         }
 
-        // Check if the pwd contains at least one special character
+        // Check if the password contains at least one special character
         if (!/[!@#$%^&*()_+=-{};:"<>,./?]/.test(pwd)) {
           return false;
         }
 
         return true;
       };
+
       if (!validatePassword(pwd)) {
         return res.status(400).send("Password is invalid !!");
       }
+
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(req.body.password, salt);
       user.password = hashedPassword;
@@ -181,6 +207,7 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
       _id: updatedUser._id,
       username: updatedUser.username,
       email: updatedUser.email,
+      image: updatedUser.image,
       isAdmin: updatedUser.isAdmin,
     });
   } else {
@@ -198,7 +225,7 @@ const deleteUserById = asyncHandler(async (req, res) => {
     }
 
     await User.deleteOne({ _id: user._id });
-    res.json({ message: "User Deletion Suceed 🚮 👍" });
+    res.json({ message: "User Deletion Succeed 🚮 👍" });
   } else {
     res.status(404);
     throw new Error("User doesn't Exist !!");

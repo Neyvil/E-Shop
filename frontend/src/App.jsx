@@ -1,7 +1,21 @@
-export default function App() {
+import { Outlet } from "react-router-dom";
+import Navigation from "./pages/Auth/Navigation";
+import Dashboard from "./pages/Auth/Dashboard";
+import { ToastContainer } from "react-toastify";
+import { ToastProvider } from './components/Toast/ToastProvider';
+import "react-toastify/dist/ReactToastify.css";
+
+const App = () => {
   return (
-    <h1 className="text-8xl font-bold underline">
-      Hello world!
-    </h1>
-  )
-}
+    <>
+      <ToastProvider>
+      <Navigation/>
+      <main>
+        <Outlet/>
+      </main>
+      </ToastProvider>
+    </>
+  );
+};
+
+export default App;

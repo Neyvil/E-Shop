@@ -1,0 +1,38 @@
+#navigation-container {
+    width: 5%;
+    transition: width 0.3s ease-in-out;
+    overflow: hidden; /* Hide overflowing content during transition */
+  }
+  
+  #navigation-container:hover {
+    width: 15rem;
+    
+  }
+  
+  /* Initially hide nav-item-name */
+  .nav-item-name {
+    display: none;
+    transition: opacity 0.2
+    s ease-in-out; /* Add opacity transition */
+  }
+  
+  #navigation-container:hover .nav-item-name {
+    display: block;
+    opacity: 1;
+  }
+  
+  .search-input {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out; /* Add opacity transition */
+  }
+  
+  #navigation-container:hover .search-input {
+    display: block;
+    opacity: 1;
+  }
+  
+  #navigation-container:hover .search-icon {
+    display: none;
+    transition: opacity 0.2s ease-in-out; /* Add opacity transition */
+  }

@@ -5,6 +5,11 @@ const userSchema = mongoose.Schema(
     username: {
       type: String,
       required: true,
+      unique: true,
+    },
+
+    image: {
+      type: String,
     },
 
     email: {
@@ -30,4 +35,3 @@ const userSchema = mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 
 export default User;
-
