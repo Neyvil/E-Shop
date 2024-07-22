@@ -78,7 +78,7 @@ const Navigation = () => {
       style={{ zIndex: 999 }}
       className={`${
         showSidebar ? "hidden" : "flex"
-      } font-poppins antialiased xl:flex lg:flex md:hidden sm:hidden flex-col justify-between shadow-xl  p-4 text-white bg-[#171717] w-[4%] hover:w-[8rem] h-[100vh] fixed`}
+      } font-poppins antialiased xl:flex lg:flex md:hidden sm:hidden flex-col justify-between shadow-xl  p-4 text-white bg-[#1B1C30] w-[4%] hover:w-[8rem] h-[100vh] fixed`}
       id="navigation-container"
       onMouseEnter={() => setShowSidebar(true)}
       onMouseLeave={() => setShowSidebar(false)}
