@@ -98,6 +98,9 @@ const loginUser = asyncHandler(async (req, res) => {
         isAdmin: existingUser.isAdmin,
       });
       return;
+    } else {
+      res.status(400);
+      throw new error("Invalid Password 👀");
     }
   } else {
     res.status(404);
@@ -144,9 +147,8 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
     if (req.file) {
       if (user.image) {
         const ImagePath = path.join("uploads", user.image);
-        const existingImagePath=ImagePath.replace('uploads\\','')
+        const existingImagePath = ImagePath.replace("uploads\\", "");
 
-        
         //Deleting the image if user provide new image
         fs.unlink(existingImagePath, (err) => {
           if (err) {
@@ -218,18 +220,16 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
 
 const deleteUserById = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
-  if (user) {
-    if (user.isAdmin) {
-      res.status(400);
-      throw new Error("User is Admin 👑");
-    }
-
-    await User.deleteOne({ _id: user._id });
-    res.json({ message: "User Deletion Succeed 🚮 👍" });
-  } else {
-    res.status(404);
-    throw new Error("User doesn't Exist !!");
+  if (!user) {
+    return res.status(404).json({ message: "User doesn't Exist!!" });
   }
+
+  if (user.isAdmin) {
+    return res.status(400).json({ message: "User is Admin 👑" });
+  }
+
+  await User.deleteOne({ _id: user._id });
+  res.json({ message: "User Deletion Succeed 🚮 👍" });
 });
 
 const getUserById = asyncHandler(async (req, res) => {
@@ -247,7 +247,8 @@ const userUpdateById = asyncHandler(async (req, res) => {
   if (user) {
     user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
-    user.isAdmin = Boolean(req.body.isAdmin);
+    user.isAdmin =
+      req.body.isAdmin !== undefined ? req.body.isAdmin : user.isAdmin;
 
     const updatedUser = await user.save();
 
