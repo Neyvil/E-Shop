@@ -15,7 +15,7 @@ import {
   List,
   SquareUser,
 } from "lucide-react";
-import image1 from "../../image/img1.jpg";
+
 import { Link, useNavigate } from "react-router-dom";
 import "./Navigation.css";
 import { useSelector, useDispatch } from "react-redux";

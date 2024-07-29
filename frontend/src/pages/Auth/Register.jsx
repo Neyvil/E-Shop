@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Carousel from "../../components/Carousel";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
@@ -52,6 +53,7 @@ function Register() {
     } else {
       try {
         const res = await register({ username, email, password }).unwrap();
+        console.log(res)
         dispatch(setCredentials({ ...res }));
         navigate(redirect);
         addToast("success", "Account successfully created");
@@ -64,9 +66,9 @@ function Register() {
 
   return (
     <div className="h-screen">
-      <section className=" h-full bg-[#292B4B] flex justify-center items-center">
-        <div className=" w-[44rem] h-[54rem] lg:w-[84rem] lg:h-[50rem] rounded-3xl shadow-2xl bg-[#1B1C30] flex justify-center lg:justify-evenly items-center">
-          <div className="relative w-[38rem] h-[46rem] flex flex-col justify-evenly items-center rounded-3xl border-2 border-[#27283B]">
+      <section className=" h-full bg-[#292B4B] flex justify-center items-center overflow-y-auto p-3 lg:p-0">
+        <div className=" w-full  max-w-[80rem] lg:h-[50rem] rounded-3xl shadow-2xl bg-[#1B1C30] flex justify-center lg:justify-evenly items-center">
+          <div className="relative w-full lg:w-[38rem] h-[45rem] flex flex-col justify-evenly items-center rounded-3xl border-2 border-[#27283B]">
             <div className=" w-full h-[12rem] mt-2 flex flex-col justify-center items-center space-y-5">
               <LayoutGrid
                 size={65}
@@ -147,6 +149,8 @@ function Register() {
                         className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#7303c0]"
                         onMouseDown={togglePasswordVisibility}
                         onMouseUp={togglePasswordVisibility}
+                        onTouchStart={togglePasswordVisibility}
+                        onTouchEnd={togglePasswordVisibility}
                       >
                         {showPassword ? <EyeOff /> : <Eye />}
                       </button>
@@ -181,6 +185,8 @@ function Register() {
                         className="absolute right-2 top-1/2 transform -translate-y-3 text-[#7303c0]"
                         onMouseDown={toggleConfirmPasswordVisibility}
                         onMouseUp={toggleConfirmPasswordVisibility}
+                        onTouchStart={toggleConfirmPasswordVisibility}
+                        onTouchEnd={toggleConfirmPasswordVisibility}
                       >
                         {showConfirmPassword ? <EyeOff /> : <Eye />}
                       </button>
@@ -197,12 +203,12 @@ function Register() {
                   </button>
                 </div>
                 {isLoading && (
-                  <div className=" flex justify-center items-center my-1">
+                  <div className="z-50 lg:flex justify-center items-center my-1">
                     <Loader />
                   </div>
                 )}
 
-                <div className="flex justify-center text-slate-200 mt-4 ">
+                <div className=" relative flex justify-center text-slate-200 mt-4 ">
                   Been here before ?
                   <Link
                     to={redirect ? `/login?redirect=${redirect}` : "/login"}
@@ -222,7 +228,11 @@ function Register() {
               </div>
             </div>
           </div>
-          <div className=" lg:w-[38rem] lg:h-[46rem] flex flex-col justify-evenly items-center rounded-3xl border-2 border-[#27283B]"></div>
+          <div className="hidden lg:flex lg:w-[39rem] lg:h-[40rem] border-2 border-[#27283B] rounded-3xl">
+            <div className="w-full h-full p-5 ">
+              <Carousel className="shadow-md shadow-white"/>
+            </div>
+          </div>
         </div>
       </section>
     </div>

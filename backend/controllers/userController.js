@@ -100,7 +100,7 @@ const loginUser = asyncHandler(async (req, res) => {
       return;
     } else {
       res.status(400);
-      throw new error("Invalid Password 👀");
+      throw new Error("Invalid Password 👀");
     }
   } else {
     res.status(404);

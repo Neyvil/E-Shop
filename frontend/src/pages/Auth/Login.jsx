@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLoginMutation } from "../../redux/api/usersApiSlice";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { useToast } from "../../components/Toast/ToastProvider";
-
+import Carousel from "../../components/Carousel";
 import { Flame, Mail, Eye, EyeOff } from "lucide-react";
 import Loader from "../../components/Loader";
 
@@ -58,10 +58,10 @@ const Login = () => {
 
   return (
     <div className="h-screen">
-      <section className="h-full bg-[#292B4B] flex justify-center items-center">
-        <div className=" w-[40rem] h-[50rem] lg:w-[80rem] lg:h-[45rem] rounded-3xl shadow-2xl bg-[#1B1C30] flex justify-center lg:justify-evenly items-center ">
-          <div className=" relative w-[30rem] h-[40rem] flex flex-col justify-evenly items-center rounded-3xl border-2 border-[#27283B] ">
-            <div className=" font-poppins text-white w-[27rem]  h-[20rem] flex flex-col items-center pt-4  space-y-2">
+      <section className="h-full bg-[#292B4B] flex p-3 lg:p-0 justify-center items-center overflow-y-auto">
+        <div className=" w-full max-w-[80rem] lg:h-[45rem] rounded-3xl shadow-2xl bg-[#1B1C30] flex lg:flex-row justify-center lg:justify-evenly items-center ">
+          <div className="w-full lg:w-[30rem] lg:h-[40rem] flex flex-col justify-evenly items-center rounded-3xl border-2 border-[#27283B] p-4 lg:p-0">
+            <div className=" font-poppins text-white w-full lg:w-[27rem] lg:h-[20rem] flex flex-col items-center pt-4  space-y-2">
               <Flame size={78} color="#7303c0" />
               <h1 className="text-3xl text-bold">Welcome back</h1>
               <span>
@@ -71,7 +71,7 @@ const Login = () => {
                 </span>
               </span>
             </div>
-            <div className=" w-[27rem] h-[35rem] mb-4  ">
+            <div className=" w-full lg:w-[27rem]  mb-4  ">
               <form onSubmit={submitHandler} className=" container mt-12 ">
                 <div className=" m-4 space-y-2">
                   <label
@@ -117,6 +117,8 @@ const Login = () => {
                         className="absolute right-2 top-1/2 transform -translate-y-3 text-[#7303c0]"
                         onMouseDown={togglePasswordVisiblity}
                         onMouseUp={togglePasswordVisiblity}
+                        onTouchStart={togglePasswordVisiblity}
+                        onTouchEnd={togglePasswordVisiblity}
                       >
                         {showPassword ? <EyeOff /> : <Eye />}
                       </button>
@@ -161,7 +163,11 @@ const Login = () => {
               </form>
             </div>
           </div>
-          <div className=" relative  lg:w-[39rem] lg:h-[40rem] border-2 border-[#27283B] rounded-3xl"></div>
+          <div className="hidden lg:flex lg:w-[39rem] lg:h-[40rem] border-2 border-[#27283B] rounded-3xl">
+            <div className="w-full h-full p-5 ">
+              <Carousel className="shadow-md shadow-white"/>
+            </div>
+          </div>
         </div>
       </section>
     </div>

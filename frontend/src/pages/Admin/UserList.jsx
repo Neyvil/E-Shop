@@ -44,15 +44,9 @@ const UserList = () => {
   const deleteUserHandler = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        const response = await deleteUser(id);
-        console.log(response);
-
-        if (response.status === 400) {
-          addtoast("error", response.data.message);
-        } else if (response.status >= 200 && response.status < 300) {
-          addtoast("success", "User Deletion Succeed");
-        } else {
-          addtoast("error", "An error occurred while deleting the user.");
+        const res =await deleteUser(id)
+        if(res.error){
+          addtoast("error",res.error.data.message)
         }
       } catch (error) {
         console.error("Error deleting user:", error);
