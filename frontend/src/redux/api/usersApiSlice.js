@@ -1,6 +1,6 @@
 import { apiSlice } from "./apiSlice";
 import { USERS_URL } from "../constants";
-import { current } from "@reduxjs/toolkit";
+
 
 export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

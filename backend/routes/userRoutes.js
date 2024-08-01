@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const extname = path.extname(file.originalname);
-    const filename = `${file.fieldname}-${Date.now().toPrecision()}${extname}`;
+    const filename = `${file.fieldname}-${Date.now()}${extname}`;
     console.log("Generated Filename:", filename); // Log the generated filename
     cb(null, filename);
   },

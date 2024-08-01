@@ -30,20 +30,25 @@ const Profile = () => {
   const { data: currentProfileData, refetch } = useCurrentProfileDetailsQuery();
   const passwordRules =
     "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+  
   useEffect(() => {
-    if (currentProfileData && currentProfileData.image) {
+    if (currentProfileData) {
       const imgstr = `http://localhost:5000/${currentProfileData.image.replace(
         /\\/g,
         "/"
       )}`;
       setProfilePic(imgstr);
+      console.log(imgstr)
       setUsername(currentProfileData.username);
       setEmail(currentProfileData.email);
+      refetch()
     }
-  }, [currentProfileData]);
+  }, [currentProfileData,refetch]);
 
   const changeProfileImageHandler = (event) => {
-    setImage(event.target.files[0]);
+    const file = event.target.files[0];
+    setImage(file);
+    setProfilePic(URL.createObjectURL(file)); // Show preview of the selected image
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
@@ -72,6 +77,13 @@ const Profile = () => {
       const res = await updateProfile(formData).unwrap();
       addToast("success", "Profile updated successfully 🤞");
       dispatch(setCredentials(res));
+      if (res.image) {
+        const updatedImgstr = `http://localhost:5000/${res.image.replace(
+          /\\/g,
+          "/"
+        )}`;
+        setProfilePic(updatedImgstr); // Update profile picture state after upload
+      }
     } catch (error) {
       console.error(error);
       addToast("error", "Profile not updated");
@@ -222,7 +234,7 @@ const Profile = () => {
                 {isUpdating ? "Updating.." : "Update"}
               </button>
               <button className="w-[10rem] h-[3rem] rounded-3xl text-bold text-white bg-purple-700 hover:bg-purple-800 cursor-pointer">
-                My Oders
+                My Orders
               </button>
             </div>
             {isUpdating && (
