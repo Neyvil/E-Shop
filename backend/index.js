@@ -24,5 +24,6 @@ app.use('/uploads', express.static(path.join(path.resolve(), '/uploads')));
 
 app.use("/api/users", userRoutes);
 app.use("/api/category", categoryRoutes);
+app.use("/api/products",productRoutes)
 
 app.listen(port, () => console.log(`Server running on port: ${port}`));

@@ -271,7 +271,7 @@ const Navigation = () => {
               onClick={logoutHandler}
               className="flex items-start pb-10 transition-transform transform hover:translate-x-5"
             >
-              <LogOut size={26} color="#7303c0" className="mr-2 mt-[2rem] nav-item-name" />
+              <LogOut size={showSidebar ? 26 : 24} color="#7303c0" className="mr-2 mt-[2rem]" />
               <span className="hidden nav-item-name mt-[2rem] ">Logout</span>
             </button>
           </li>
