@@ -30,20 +30,22 @@ const Profile = () => {
   const { data: currentProfileData, refetch } = useCurrentProfileDetailsQuery();
   const passwordRules =
     "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
-  
+
   useEffect(() => {
     if (currentProfileData) {
-      const imgstr = `http://localhost:5000/${currentProfileData.image.replace(
-        /\\/g,
-        "/"
-      )}`;
-      setProfilePic(imgstr);
-      console.log(imgstr)
+      if (currentProfileData.image) {
+        const imgstr = `http://localhost:5000/${currentProfileData.image.replace(
+          /\\/g,
+          "/"
+        )}`;
+        setProfilePic(imgstr);
+        console.log(imgstr);
+      }
       setUsername(currentProfileData.username);
       setEmail(currentProfileData.email);
-      refetch()
+      refetch();
     }
-  }, [currentProfileData,refetch]);
+  }, [currentProfileData, refetch]);
 
   const changeProfileImageHandler = (event) => {
     const file = event.target.files[0];
