@@ -267,13 +267,13 @@ const Navigation = () => {
       ) : (
         <ul className="pl-4">
           <li>
-            <button
+            <Link
               onClick={logoutHandler}
-              className="flex items-start pb-10 transition-transform transform hover:translate-x-5"
+              className="flex items-start pb-10 transition-transform transform cursor-pointer hover:translate-x-5"
             >
-              <LogOut size={showSidebar ? 26 : 24} color="#7303c0" className="mr-2 mt-[2rem]" />
+              <LogOut size={26} color="#7303c0" className="mr-2 mt-[2rem]" />
               <span className="hidden nav-item-name mt-[2rem] ">Logout</span>
-            </button>
+            </Link>
           </li>
         </ul>
       )}
