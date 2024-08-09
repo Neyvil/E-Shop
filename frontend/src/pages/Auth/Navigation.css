@@ -1,38 +1,60 @@
 #navigation-container {
-    width: 5%;
-    transition: width 0.3s ease-in-out;
-    overflow: hidden; /* Hide overflowing content during transition */
-  }
-  
-  #navigation-container:hover {
-    width: 15rem;
-    
-  }
-  
-  /* Initially hide nav-item-name */
-  .nav-item-name {
-    display: none;
-    transition: opacity 0.2
-    s ease-in-out; /* Add opacity transition */
-  }
-  
-  #navigation-container:hover .nav-item-name {
-    display: block;
-    opacity: 1;
-  }
-  
-  .search-input {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out; /* Add opacity transition */
-  }
-  
-  #navigation-container:hover .search-input {
-    display: block;
-    opacity: 1;
-  }
-  
-  #navigation-container:hover .search-icon {
-    display: none;
-    transition: opacity 0.2s ease-in-out; /* Add opacity transition */
-  }
+  width: 6%;
+  transition: width 0.3s ease-in-out;
+  overflow: hidden; /* Hide overflowing content during transition */
+}
+
+#navigation-container:hover {
+  width: 15rem;
+}
+
+.show-scrollbar {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #7303c0 transparent; /* For Firefox */
+}
+
+.show-scrollbar::-webkit-scrollbar {
+  width: 12px; /* Width of the scrollbar */
+}
+
+.show-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #7303c0; /* Scrollbar color */
+  border-radius: 10px; /* Rounded corners */
+}
+
+.show-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent; /* Track color (optional) */
+}
+
+.show-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: #a057e3; /* Lighter purple on hover */
+}
+
+/* Initially hide nav-item-name */
+.nav-item-name {
+  display: none;
+  transition: opacity 0.2 s ease-in-out; /* Add opacity transition */
+}
+
+#navigation-container:hover .nav-item-name {
+  display: block;
+  opacity: 1;
+}
+
+.search-input {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out; /* Add opacity transition */
+}
+
+#navigation-container:hover .search-input {
+  display: block;
+  opacity: 1;
+}
+
+#navigation-container:hover .search-icon {
+  display: none;
+  transition: opacity 0.2s ease-in-out; /* Add opacity transition */
+}

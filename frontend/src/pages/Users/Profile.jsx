@@ -39,7 +39,6 @@ const Profile = () => {
           "/"
         )}`;
         setProfilePic(imgstr);
-        console.log(imgstr);
       }
       setUsername(currentProfileData.username);
       setEmail(currentProfileData.email);
@@ -93,7 +92,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="h-screen flex justify-center items-center bg-[#292B4B]">
+    <div className="h-screen flex justify-center items-center bg-[#292B4B] overflow-y-auto">
       <section className="w-full max-w-2xl bg-[#1B1C30] rounded-3xl shadow-xl p-8">
         <div className="flex flex-col items-center">
           <form onSubmit={submitHandler} className="w-full space-y-6">

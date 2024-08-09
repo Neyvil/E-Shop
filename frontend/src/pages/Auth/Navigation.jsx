@@ -48,8 +48,6 @@ const Navigation = () => {
 
   const [logoutApiCall] = useLogoutMutation();
 
-  const addToast = useToast();
-
   const { data: currentProfileData, refetch } = useCurrentProfileDetailsQuery();
 
   useEffect(() => {
@@ -83,7 +81,11 @@ const Navigation = () => {
       onMouseEnter={() => setShowSidebar(true)}
       onMouseLeave={() => setShowSidebar(false)}
     >
-      <div className="flex flex-col text-center space-y-6 mt-8 pl-4">
+      <div
+        className={`${
+          showSidebar ? "show-scrollbar" : ""
+        } flex flex-col text-center space-y-6 mt-8 pl-4`}
+      >
         <h1
           className={`font-bold text-center ${
             showSidebar ? "text-3xl" : "text-xl"
@@ -132,111 +134,116 @@ const Navigation = () => {
         )}
 
         <hr className=" mt-3 mx-2 border rounded-xl border-[#27283B]" />
-
-        <Link
-          to="/"
-          className="flex items-center transition-transform transform hover:translate-x-5"
-        >
-          <House size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
-          <span className="hidden nav-item-name mt-[1rem]">HOME</span>{" "}
-        </Link>
-
-        {userInfo && userInfo.isAdmin ? (
+        <div className={`${
+          showSidebar ? "show-scrollbar" : ""
+        } flex flex-col text-center space-y-6 mt-8 pl-4`}>
           <Link
-            to="/admin/dashboard"
+            to="/"
             className="flex items-center transition-transform transform hover:translate-x-5"
           >
-            <LayoutDashboard
-              size={26}
-              color="#7303c0"
-              className="mr-2 mt-[1rem] "
-            />
-            <span className="hidden nav-item-name mt-[1rem]">DASHBOARD</span>{" "}
+            <House size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+            <span className="hidden nav-item-name mt-[1rem]">HOME</span>{" "}
           </Link>
-        ) : (
-          <></>
-        )}
-        <Link
-          to="/store"
-          className="flex items-center transition-transform transform hover:translate-x-5"
-        >
-          <Store size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
-          <span className="hidden nav-item-name mt-[1rem]">STORE</span>{" "}
-        </Link>
 
-        {userInfo && userInfo.isAdmin ? (
-          <div className=" space-y-6">
+          {userInfo && userInfo.isAdmin ? (
             <Link
-              to="/admin/orderlist"
+              to="/admin/dashboard"
               className="flex items-center transition-transform transform hover:translate-x-5"
             >
-              <Box size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
-              <span className="hidden nav-item-name mt-[1rem]">
-                ORDERS
-              </span>{" "}
-            </Link>
-            <Link
-              to="/admin/categorylist"
-              className="flex items-center transition-transform transform hover:translate-x-5"
-            >
-              <List size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
-              <span className="hidden nav-item-name mt-[1rem]">
-                CATEGORY
-              </span>{" "}
-            </Link>
-            <Link
-              to="/admin/productlist"
-              className="flex items-center transition-transform transform hover:translate-x-5"
-            >
-              <Boxes size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
-              <span className="hidden nav-item-name mt-[1rem]">
-                PRODUCTS
-              </span>{" "}
-            </Link>
-
-            <Link
-              to="/admin/userlist"
-              className="flex items-center transition-transform transform hover:translate-x-5"
-            >
-              <Users size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
-              <span className="hidden nav-item-name mt-[1rem]">USERS</span>{" "}
-            </Link>
-          </div>
-        ) : (
-          <div className=" space-y-6">
-            <Link
-              to="/cart"
-              className="flex items-center transition-transform transform hover:translate-x-5"
-            >
-              <ShoppingCart
+              <LayoutDashboard
                 size={26}
                 color="#7303c0"
                 className="mr-2 mt-[1rem] "
               />
-              <span className="hidden nav-item-name mt-[1rem]">CART</span>{" "}
+              <span className="hidden nav-item-name mt-[1rem]">DASHBOARD</span>{" "}
             </Link>
-            <Link
-              to="/profile"
-              className="flex items-center transition-transform transform hover:translate-x-5"
-            >
-              <SquareUser
-                size={26}
-                color="#7303c0"
-                className="mr-2 mt-[1rem] "
-              />
-              <span className="hidden nav-item-name mt-[1rem]">PROFILE</span>{" "}
-            </Link>
-            <Link
-              to="/favourite"
-              className="flex items-center transition-transform transform hover:translate-x-5"
-            >
-              <Heart size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
-              <span className="hidden nav-item-name mt-[1rem]">
-                FAVOURITE
-              </span>{" "}
-            </Link>
-          </div>
-        )}
+          ) : (
+            <></>
+          )}
+          <Link
+            to="/store"
+            className="flex items-center transition-transform transform hover:translate-x-5"
+          >
+            <Store size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+            <span className="hidden nav-item-name mt-[1rem]">STORE</span>{" "}
+          </Link>
+
+          {userInfo && userInfo.isAdmin ? (
+            <div className=" space-y-6">
+              <Link
+                to="/admin/orderlist"
+                className="flex items-center transition-transform transform hover:translate-x-5"
+              >
+                <Box size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+                <span className="hidden nav-item-name mt-[1rem]">
+                  ORDERS
+                </span>{" "}
+              </Link>
+              <Link
+                to="/admin/categorylist"
+                className="flex items-center transition-transform transform hover:translate-x-5"
+              >
+                <List size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+                <span className="hidden nav-item-name mt-[1rem]">
+                  CATEGORY
+                </span>{" "}
+              </Link>
+              <Link
+                to="/admin/productlist"
+                className="flex items-center transition-transform transform hover:translate-x-5"
+              >
+                <Boxes size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+                <span className="hidden nav-item-name mt-[1rem]">
+                  PRODUCTS
+                </span>{" "}
+              </Link>
+
+              <Link
+                to="/admin/userlist"
+                className="flex items-center transition-transform transform hover:translate-x-5"
+              >
+                <Users size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+                <span className="hidden nav-item-name mt-[1rem]">
+                  USERS
+                </span>{" "}
+              </Link>
+            </div>
+          ) : (
+            <div className=" space-y-6">
+              <Link
+                to="/cart"
+                className="flex items-center transition-transform transform hover:translate-x-5"
+              >
+                <ShoppingCart
+                  size={26}
+                  color="#7303c0"
+                  className="mr-2 mt-[1rem] "
+                />
+                <span className="hidden nav-item-name mt-[1rem]">CART</span>{" "}
+              </Link>
+              <Link
+                to="/profile"
+                className="flex items-center transition-transform transform hover:translate-x-5"
+              >
+                <SquareUser
+                  size={26}
+                  color="#7303c0"
+                  className="mr-2 mt-[1rem] "
+                />
+                <span className="hidden nav-item-name mt-[1rem]">PROFILE</span>{" "}
+              </Link>
+              <Link
+                to="/favourite"
+                className="flex items-center transition-transform transform hover:translate-x-5"
+              >
+                <Heart size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+                <span className="hidden nav-item-name mt-[1rem]">
+                  FAVOURITE
+                </span>{" "}
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
       {!userInfo ? (
@@ -269,7 +276,7 @@ const Navigation = () => {
           <li>
             <Link
               onClick={logoutHandler}
-              className="flex items-start pb-10 transition-transform transform cursor-pointer hover:translate-x-5"
+              className="flex items-start pb-4 transition-transform transform cursor-pointer hover:translate-x-5"
             >
               <LogOut size={26} color="#7303c0" className="mr-2 mt-[2rem]" />
               <span className="hidden nav-item-name mt-[2rem] ">Logout</span>

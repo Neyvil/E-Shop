@@ -5,22 +5,19 @@ const addProduct = asyncHandler(async (req, res) => {
   try {
     const { name, description, price, category, quantity, brand } = req.fields;
 
-    switch (true) {
-      case !name:
-        return res.json({ error: "Name is required." });
-      case !brand:
-        return res.json({ error: "Brand is required" });
-      case !description:
-        return res.json({ error: "Description is required" });
-      case !price:
-        return res.json({ error: "Price is required" });
-      case !category:
-        return res.json({ error: "Category is required" });
-      case !quantity:
-        return res.json({ error: "Quantity is required" });
+    if (!name || !description || !price || !category || !quantity || !brand) {
+      return res.status(400).json({ error: "All fields are required" });
     }
 
-    const product = new Product({ ...req.fields });
+    const product = new Product({
+      name,
+      description,
+      price,
+      category,
+      quantity,
+      brand,
+      image: req.file ? req.file.filename : null,
+    });
     await product.save();
     res.json(product);
   } catch (error) {
@@ -31,32 +28,60 @@ const addProduct = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, description, price, category, quantity, brand } = req.fields;
+    const { name, description, price, category, quantity, brand } = req.body;
 
-    switch (true) {
-      case !name:
-        return res.json({ error: "Name is required." });
-      case !brand:
-        return res.json({ error: "Brand is required" });
-      case !description:
-        return res.json({ error: "Description is required" });
-      case !price:
-        return res.json({ error: "Price is required" });
-      case !category:
-        return res.json({ error: "Category is required" });
-      case !quantity:
-        return res.json({ error: "Quantity is required" });
+    if (!name || !description || !price || !category || !quantity || !brand) {
+      return res.status(400).json({ error: "All fields are required" });
     }
-    const updatingProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      { ...req.fields },
-      { new: true }
-    );
-    await updatingProduct.save();
-    res.json(updatingProduct);
+
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    if (req.file) {
+      if (product.image) {
+        const existingImagePath = path.join("uploads/products", product.image);
+        fs.unlink(existingImagePath, (err) => {
+          if (err) {
+            console.error("Failed to delete existing image:", err);
+          } else {
+            console.log(
+              "Successfully deleted existing image:",
+              existingImagePath
+            );
+          }
+        });
+      }
+
+      product.image = req.file.filename;
+    }
+
+    product.name = name;
+    product.description = description;
+    product.price = price;
+    product.category = category;
+    product.quantity = quantity;
+    product.brand = brand;
+
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
   } catch (error) {
     console.error(error);
-    res.status(400).json(error.message);
+    res.status(400).json({ error: error.message });
+  }
+});
+const fetchAllProducts = asyncHandler(async (req, res) => {
+  try {
+    const products = await Product.find({})
+      .populate("category")
+      .limit(12)
+      .sort({ createAt: -1 });;
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: "Internal server Error!!" });
   }
 });
 
@@ -148,13 +173,34 @@ const addProductReview = asyncHandler(async (req, res) => {
   }
 });
 
+const fetchTopProduct = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.find({}).sort({ rating: -1 }).limit(4);
+    res.json(product);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "Fetching Problem" });
+  }
+});
 
+const fetchNewProduct = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.find({}).sort({ _id: -1 }).limit(4);
+    res.json(product);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: "Fetching problem!" });
+  }
+});
 
 export {
+  fetchNewProduct,
   addProduct,
   updateProduct,
   removeProduct,
   fetchProducts,
   fetchProductById,
   addProductReview,
+  fetchTopProduct,
+  fetchAllProducts,
 };

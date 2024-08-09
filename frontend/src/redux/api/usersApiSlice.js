@@ -77,7 +77,6 @@ export const {
   useLogoutMutation,
   useRegisterMutation,
   useProfileMutation,
-  useUploadMutation,
   useCurrentProfileDetailsQuery,
   useDeleteUserMutation,
   useGetUserDetailByIdQuery,
