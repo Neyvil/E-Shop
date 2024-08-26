@@ -1,38 +1,64 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
+import path from "path";
+import fs from "fs";
 
-const addProduct = asyncHandler(async (req, res) => {
+const addProduct = async (req, res) => {
   try {
-    const { name, description, price, category, quantity, brand } = req.fields;
+    const {
+      name,
+      category,
+      description,
+      brand,
+      quantity,
+      price,
+      countInStock,
+    } = req.body;
 
-    if (!name || !description || !price || !category || !quantity || !brand) {
+    if (
+      !name ||
+      !description ||
+      !price ||
+      !category ||
+      !quantity ||
+      !brand ||
+      !countInStock
+    ) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    // Access the uploaded file from req.file
+    const productImage = req.file.path;
+
+    // Add your logic to create a new product using these fields
     const product = new Product({
       name,
-      description,
-      price,
       category,
-      quantity,
+      description,
       brand,
-      image: req.file ? req.file.filename : null,
+      quantity,
+      price,
+      productImage,
+      countInStock,
     });
+
+    // Save the product to the database
     await product.save();
-    res.json(product);
+
+    res.status(201).json({
+      message: "Product created successfully",
+      product,
+    });
   } catch (error) {
     console.error(error);
-    res.status(400).json(error.message);
+    res.status(500).json({ error: "Server error, could not create product" });
   }
-});
+};
 
 const updateProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, description, price, category, quantity, brand } = req.body;
-
-    if (!name || !description || !price || !category || !quantity || !brand) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
+    const { name, description, price, category, quantity, brand, countInStock } =
+      req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -41,8 +67,10 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
 
     if (req.file) {
-      if (product.image) {
-        const existingImagePath = path.join("uploads/products", product.image);
+      if (product.productImage) {
+        const ImagePath = path.join("uploads/products", product.productImage);
+        const existingImagePath = ImagePath.replace("uploads\\products\\", "");
+
         fs.unlink(existingImagePath, (err) => {
           if (err) {
             console.error("Failed to delete existing image:", err);
@@ -55,7 +83,8 @@ const updateProduct = asyncHandler(async (req, res) => {
         });
       }
 
-      product.image = req.file.filename;
+      product.productImage = req.file.path;
+      console.log("New Image Path:", req.file.path);
     }
 
     product.name = name;
@@ -64,20 +93,26 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.category = category;
     product.quantity = quantity;
     product.brand = brand;
+    product.countInStock = countInStock;
 
     const updatedProduct = await product.save();
-    res.json(updatedProduct);
+    res
+      .status(201)
+      .json({ message: "Successfully update product", updatedProduct });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ error: error.message });
+    console.error("Error:", error);
+    res
+      .status(400)
+      .json({ message: "Product update failed", error: error.message });
   }
 });
+
 const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
       .populate("category")
       .limit(12)
-      .sort({ createAt: -1 });;
+      .sort({ createAt: -1 });
     res.json(products);
   } catch (error) {
     console.error(error);
@@ -88,7 +123,6 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
 const removeProduct = asyncHandler(async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
-    console.log(product);
     res.json(product);
   } catch (error) {
     console.error(error);

@@ -1,30 +1,42 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import { useCreateProductMutation } from "../../redux/api/productApiSlice";
+import { useNavigate, useParams } from "react-router";
+import {
+  useGetProductByIdQuery,
+  useRemoveProductMutation,
+  useUpdateProductMutation,
+} from "../../redux/api/productApiSlice";
 import { useFetchCategoriesQuery } from "../../redux/api/categoryApisSlice.js";
 import { useToast } from "../../components/Toast/ToastProvider";
-
-import { CloudUpload } from "lucide-react";
+import { Trash } from "lucide-react";
 import img from "../../image/defaultProductImage.png";
 import Loader from "../../components/Loader.jsx";
 import AdminMenu from "./AdminMenu.jsx";
 
 function Products() {
-  const [name, setName] = useState("");
-  const [image, setImage] = useState(null);
-  const [productImage, setProductImage] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
-  const [category, setCategory] = useState("None");
-  const [brand, setBrand] = useState("");
-  const [quantity, setQuantity] = useState(0);
-  const [stock, setStock] = useState(0);
+  const params = useParams();
+  const { data: productData } = useGetProductByIdQuery(params._id);
+  const addToast = useToast();
+
+  const [name, setName] = useState(productData?.name || "");
+  const [image, setImage] = useState(productData?.productImage || "");
+  const [productImage, setProductImage] = useState(img);
+  const [description, setDescription] = useState(
+    productData?.description || ""
+  );
+  const [price, setPrice] = useState(productData?.price || "");
+  const [category, setCategory] = useState(productData?.category?._id || "");
+  const [brand, setBrand] = useState(productData?.brand || "");
+  const [stock, setStock] = useState(productData?.countInstock);
+  const [quantity, setQuantity] = useState(productData?.quantity);
   const navigate = useNavigate();
 
-  const [createProduct, { isLoading: isAdding }] = useCreateProductMutation();
   const { data: categories } = useFetchCategoriesQuery();
-  const addToast = useToast();
+
+  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
+
+  const [productDeletion, { isloading: isDeleting }] =
+    useRemoveProductMutation();
 
   const addProductImage = (event) => {
     const file = event.target.files[0];
@@ -33,78 +45,123 @@ function Products() {
   };
 
   const resetFields = () => {
-    setName("");
-    setImage(null);
-    setProductImage("");
-    setDescription("");
-    setPrice(0);
-    setCategory("None"); // Reset category to "None"
-    setBrand("");
-    setQuantity(0);
+    setName(productData?.name);
+    setDescription(productData?.description);
+    setPrice(productData?.price);
+    setCategory(productData?.category?._id); // Reset category to "None"
+    setBrand(productData?.brand);
+    setQuantity(productData?.quantity);
+    setStock(productData?.countInstock);
+  };
+
+  useEffect(() => {
+    if (productData && productData._id) {
+      setName(productData.name);
+      setDescription(productData.description);
+      setPrice(productData.price);
+      setBrand(productData.brand);
+      setQuantity(productData.quantity);
+      setStock(productData.countInStock);
+      if (productData.category) {
+        setCategory(productData.category);
+      }
+      if (productData.productImage) {
+        const imgstr = `http://localhost:5000/${productData.productImage.replace(
+          /\\/g,
+          "/"
+        )}`;
+        setProductImage(imgstr);
+      }
+    }
+  }, [productData]);
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    try {
+      let answer = window.confirm(
+        "Are you sure you want to delete this product ?"
+      );
+      if (!answer) return;
+
+      const { data } = await productDeletion(params._id);
+      if (!data) {
+        addToast("error", "Deletion failed !!");
+      } else {
+        addToast("success", `${data.name} successfully deleted  `);
+        navigate("/admin/allproductslist");
+      }
+    } catch (error) {
+      console.log(error);
+      addToast("error", "Product deletion failed,Try again");
+    }
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    const formdata = new FormData();
-    formdata.append("name", name);
-    formdata.append("productImage", image);
-    formdata.append("category", category);
-    formdata.append("description", description);
-    formdata.append("brand", brand);
-    formdata.append("quantity", quantity);
-    formdata.append("price", price);
-    formdata.append("countInStock", stock);
-    console.log(formdata);
     try {
-      const res = await createProduct(formdata).unwrap();
-      console.log("Response:", res);
-      if (!res) {
-        console.error(res.data.error);
-        addToast("error", "Product creation failed!");
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("productImage", image); // Match this name with backend
+      formData.append("category", category);
+      formData.append("description", description);
+      formData.append("brand", brand);
+      formData.append("quantity", quantity);
+      formData.append("countInStock", stock);
+      formData.append("price", price);
+
+      // for debugging
+      // for (const pair of formData.entries()) {
+      //   console.log(`${pair[0]}: ${pair[1]}`);
+      // }
+
+      const data = await updateProduct({
+        productId: params._id,
+        formData,
+      });
+
+      if (data.error) {
+        addToast("error", "Product update failed!");
       } else {
-        addToast("success", "Product Successfully Created");
+        addToast("success", `${name} product is successfully Updated 👍🏻`);
         navigate("/admin/allproductslist");
       }
     } catch (error) {
       console.error(error);
-      addToast("error", error.data.error);
+      addToast("error", error.data.message);
     }
   };
 
   return (
-    <form
-      onSubmit={submitHandler}
-      className="p-4 sm:p-8 md:ml-16 bg-[#292B4B] overflow-y-auto"
-    >
-      {isAdding ? (
-              <div className=" absolute z-50 flex justify-center items-center ">
-                <Loader />
-              </div>
-            ) : (
-              ""
-            )}
-      <div className="relative m-16 ">
+    <div className="p-4 sm:p-8 md:ml-16 bg-[#292B4B] overflow-y-auto">
+      {isUpdating ? (
+        <div className="z-50 flex justify-center items-center ">
+          <Loader />
+        </div>
+      ) : (
+        ""
+      )}
+      <div className="relative m-16 z-30">
         <AdminMenu />
       </div>
-
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 ">
         <h1 className="text-2xl md:text-3xl font-bold font-serif text-white">
-          Add <span className="text-[#7303c0]">Product </span>
+          Update <span className="text-[#7303c0]">Product</span>
         </h1>
         <div className="mt-4 md:mt-0 space-x-2">
           <button
             type="button"
             onClick={resetFields}
-            className="px-4 py-2 bg-gray-200 text-gray-800 focus:ring-2 focus:ring-offset-2 focus:outline-none focus:ring-purple-500 rounded"
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded"
           >
             Discard Changes
           </button>
           <button
-            disabled={isAdding}
+            disabled={isUpdating}
             type="submit"
+            form="updateForm"
             className="px-4 py-2 bg-gradient-to-r from-[#7303c0] to-[#ec38bc] text-white font-bold inline-flex items-center rounded hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
-            {isAdding ? "Adding..." : "Add Product "}
+            {isUpdating ? "Updating..." : "Update product"}
             <svg
               className="w-4 h-4 ml-2"
               aria-hidden="true"
@@ -120,11 +177,25 @@ function Products() {
                 d="M1 5h12m0 0L9 1m4 4L9 9"
               />
             </svg>
-            
+          </button>
+          <button
+            disabled={isDeleting}
+            onClick={handleDelete}
+            className="px-4 py-2 bg-gradient-to-r from-[#c00303] to-[#ec3838] text-white font-bold inline-flex items-center rounded hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            <div className="mr-2 ">
+              <Trash size={18} />
+            </div>
+
+            {isDeleting ? "Deleting..." : "Delete product"}
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
+      <form
+        onSubmit={submitHandler}
+        id="updateForm"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8"
+      >
         <div className="col-span-2 space-y-6">
           <div className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow">
             <h2 className=" text-lg text-white md:text-xl font-semibold mb-4">
@@ -152,7 +223,7 @@ function Products() {
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-2 border bg-[#292B4B] border-gray-700 text-slate-300  rounded focus:outline-none focus:bg-white focus:text-black"
+                  className="w-full px-4 py-2 border bg-[#292B4B] border-gray-700 rounded focus:outline-none focus:bg-white focus:text-black text-white"
                   placeholder="Enter product description"
                 />
               </div>
@@ -245,7 +316,7 @@ function Products() {
             <select
               id="Category"
               name="category"
-              value={category} // Bind category value to state
+              value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black custom-select"
             >
@@ -267,8 +338,8 @@ function Products() {
             </select>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
 

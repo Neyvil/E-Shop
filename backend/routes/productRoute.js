@@ -1,9 +1,9 @@
 import express from "express";
-import Formidable from "express-formidable";
-import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
-import checkId from "../middlewares/checkId.js";
 import path from "path";
 import multer from "multer";
+import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+import checkId from "../middlewares/checkId.js";
+import fs from "fs";
 
 import {
   addProduct,
@@ -21,12 +21,16 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(path.resolve(), "uploads/products");
+    const uploadDir = "uploads/products/";
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const extname = path.extname(file.originalname);
     const filename = `${file.fieldname}-${Date.now()}${extname}`;
+    console.log("Generated Filename:", filename);
     cb(null, filename);
   },
 });
@@ -53,7 +57,6 @@ router
   .post(
     authenticate,
     authorizeAdmin,
-    Formidable(),
     upload.single("productImage"),
     addProduct
   );
@@ -70,10 +73,20 @@ router
   .put(
     authenticate,
     authorizeAdmin,
-    Formidable(),
-    upload.single("productImage"),
+    (req, res, next) => {
+      upload.single("productImage")(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+          // Handle multer-specific errors
+          return res.status(400).json({ message: err.message });
+        } else if (err) {
+          // Handle other errors (like file type errors)
+          return res.status(400).json({ message: err.message });
+        }
+        next();
+      });
+    },
     updateProduct
   )
-  .delete(authenticate, authorizeAdmin, Formidable(), removeProduct);
+  .delete(authenticate, authorizeAdmin, removeProduct);
 
 export default router;

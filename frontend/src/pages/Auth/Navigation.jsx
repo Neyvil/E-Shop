@@ -189,7 +189,7 @@ const Navigation = () => {
                 </span>{" "}
               </Link>
               <Link
-                to="/admin/productlist"
+                to="/admin/allproductslist"
                 className="flex items-center transition-transform transform hover:translate-x-5"
               >
                 <Boxes size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
@@ -198,15 +198,7 @@ const Navigation = () => {
                 </span>{" "}
               </Link>
 
-              <Link
-                to="/admin/userlist"
-                className="flex items-center transition-transform transform hover:translate-x-5"
-              >
-                <Users size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
-                <span className="hidden nav-item-name mt-[1rem]">
-                  USERS
-                </span>{" "}
-              </Link>
+              
             </div>
           ) : (
             <div className=" space-y-6">

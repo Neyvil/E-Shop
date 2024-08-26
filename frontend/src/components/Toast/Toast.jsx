@@ -19,7 +19,7 @@ const Toast = ( {type, message, onClose} ) => {
   };
 
   return (
-    <div className={`flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800`} role="alert">
+    <div className={`flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 z-50`} role="alert">
       <div className={`inline-flex items-center justify-center flex-shrink-0 w-8 h-8 ${bgColors[type]} rounded-lg`}>
         {icons[type]}
         <span className="sr-only">{type} icon</span>

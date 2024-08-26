@@ -9,6 +9,7 @@ import {
 import img from "../../image/img1.jpg";
 import moment from "moment";
 import { Trash, FilePenLine, X } from "lucide-react";
+import AdminMenu from "./AdminMenu";
 
 const UserList = () => {
   const { data: users, refetch, error } = useGetUsersQuery();
@@ -44,9 +45,9 @@ const UserList = () => {
   const deleteUserHandler = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        const res =await deleteUser(id)
-        if(res.error){
-          addtoast("error",res.error.data.message)
+        const res = await deleteUser(id);
+        if (res.error) {
+          addtoast("error", res.error.data.message);
         }
       } catch (error) {
         console.error("Error deleting user:", error);
@@ -65,7 +66,7 @@ const UserList = () => {
         userId: selectedUser._id,
         username: editableUserName,
         email: editableUserEmail,
-        isAdmin: role === "Admin", // boolean converted through "===" comparator operator
+        isAdmin: role === "Admin",
       };
 
       await updateUser(payload);
@@ -80,8 +81,11 @@ const UserList = () => {
   };
 
   return (
-    <div className="h-screen flex font-sans justify-center items-center bg-[#292B4B] overflow-y-auto">
-      <section className="w-[85%] bg-[#1B1C30] shadow-xl p-[2rem] text-center rounded-xl">
+    <div className="h-screen ml-10 flex justify-center items-center bg-[#292B4B] overflow-y-auto">
+      <div className="relative mb-10">
+        <AdminMenu />
+      </div>
+      <section className="w-[85%] bg-[#1B1C30] shadow-xl p-[2rem] text-center rounded-2xl">
         <h1 className="text-4xl font-serif font-bold text-white lg:mt-0 mb-4">
           Users <span className="text-[#7303c0]">Details</span>
         </h1>
@@ -89,48 +93,30 @@ const UserList = () => {
           Total Users:{" "}
           <span className="text-[#7303c0]">{users ? users.length : 0}</span>
         </p>
+
         <div className="flex lg:justify-between items-center lg:flex-row flex-col">
-          <div className="w-full mt-4 max-h-[40vh] lg:max-h-[60vh] overflow-auto border-collapse">
-            <table className="w-full">
+          {/* Table */}
+          <div className="w-full mt-4 max-h-[40vh] lg:max-h-[60vh] overflow-auto">
+            <table className="w-full border-separate border-spacing-y-2">
               <thead className="sticky top-0 bg-[#2A2C4A] z-10">
                 <tr>
-                  <th className="text-white font-bold m-6 font-serif text-xl">
-                    id
-                  </th>
-                  <th className="text-white font-bold m-6 font-serif text-xl">
-                    Avatar
-                  </th>
-                  <th className="text-white font-bold m-6 font-serif text-xl">
-                    Username
-                  </th>
-                  <th className="text-white font-bold m-6 font-serif text-xl">
-                    Email
-                  </th>
-                  <th
-                    className={`${
-                      showProfile
-                        ? "hidden"
-                        : "text-white font-bold m-6 font-serif text-xl"
-                    }`}
-                  >
-                    Operation
-                  </th>
-                  <th className="text-white font-bold m-6 font-serif text-xl">
-                    Role
-                  </th>
-                  <th className="text-white font-bold m-6 font-serif text-xl">
-                    Since
-                  </th>
+                  <th className="text-white font-bold text-xl">ID</th>
+                  <th className="text-white font-bold text-xl">Avatar</th>
+                  <th className="text-white font-bold text-xl">Username</th>
+                  <th className="text-white font-bold text-xl">Email</th>
+                  <th className="text-white font-bold text-xl">Role</th>
+                  <th className="text-white font-bold text-xl">Since</th>
+                  <th className="text-white font-bold text-xl">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users &&
                   users.map((user) => (
-                    <tr key={user._id} className="bg-[#24253C]">
-                      <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
+                    <tr key={user._id} className="bg-[#24253C] hover:bg-[#292B4B]">
+                      <td className="text-white text-center p-3">
                         {user._id ? user._id.slice(-8) : user._id}
                       </td>
-                      <td className="flex-col pl-8 h-[100%] border-b-2 border-solid border-[#7303c0]">
+                      <td className="text-center">
                         <img
                           src={
                             user.image
@@ -141,42 +127,33 @@ const UserList = () => {
                               : img
                           }
                           alt={user.username}
-                          className="w-12 h-12 border-b-2 border-solid border-[#7303c0] rounded-lg"
+                          className="w-12 h-12 rounded-lg mx-auto"
                         />
                       </td>
-                      <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
+                      <td className="text-white text-center p-3">
                         {user.username}
                       </td>
-                      <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
+                      <td className="text-white text-center p-3">
                         {user.email}
                       </td>
-                      <td
-                        className={`${
-                          showProfile
-                            ? "hidden"
-                            : "border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle"
-                        }`}
-                      >
-                        <div className="w-full flex items-center justify-center space-y-2 lg:justify-center lg:flex-row flex-col space-x-5">
-                          <button onClick={() => deleteUserHandler(user._id)}>
-                            <Trash color="#7303c0" size={30} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              userClickHandler(user);
-                            }}
-                          >
-                            <FilePenLine color="#7303c0" size={30} />
-                          </button>
-                        </div>
-                      </td>
-                      <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
+                      <td className="text-white text-center p-3">
                         {user.isAdmin ? "Admin" : "User"}
                       </td>
-                      <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
+                      <td className="text-white text-center p-3">
                         {user.createdAt
                           ? moment(user.createdAt).format("YYYY-MM-DD")
                           : user.createdAt}
+                      </td>
+                      <td className="text-center p-3">
+                        <button onClick={() => deleteUserHandler(user._id)}>
+                          <Trash color="#7303c0" size={24} />
+                        </button>
+                        <button
+                          onClick={() => userClickHandler(user)}
+                          className="ml-3"
+                        >
+                          <FilePenLine color="#7303c0" size={24} />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -184,23 +161,18 @@ const UserList = () => {
             </table>
           </div>
 
-          <div
-            className={`${
-              showProfile && selectedUser
-                ? "w-[90%] lg:w-[30%] flex justify-center py-3 mt-3 items-center relative"
-                : "hidden"
-            }`}
-          >
-            {selectedUser && (
-              <div className="w-[89%] h-full flex flex-col items-center pt-4 shadow-lg shadow-[#7303c0] rounded-2xl">
+          {/* User Profile Modal */}
+          {showProfile && selectedUser && (
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
+              <div className="bg-[#1B1C30] p-8 rounded-2xl shadow-lg w-[30rem]">
                 <button
-                  className="absolute top-4 right-8 p-1 rounded-lg hover:bg-[#7303c0]"
+                  className="absolute top-4 right-4 p-1 rounded-lg hover:bg-[#7303c0]"
                   onClick={handleCloseProfile}
                 >
                   <X color="white" />
                 </button>
 
-                <div className="mt-2 flex flex-col items-center">
+                <div className="flex flex-col items-center">
                   <img
                     src={
                       selectedUser.image
@@ -211,81 +183,63 @@ const UserList = () => {
                         : img
                     }
                     alt={selectedUser.username}
-                    className=" w-12 h-12 lg:w-20 lg:h-20 mb-2 rounded-full border-b-2 border-solid border-[#7303c0]"
+                    className="w-20 h-20 mb-4 rounded-full"
                   />
-                  <p className="font-serif text-lg text-white">
+                  <p className="text-white font-serif text-lg">
                     {selectedUser.username}
                   </p>
-                  <p className="font-serif text-sm text-[#7303c0]">
+                  <p className="text-[#7303c0] font-serif text-sm mb-6">
                     {selectedUser.isAdmin ? "Administrator" : "User"}
                   </p>
-                </div>
-                <div className="w-full my-4 flex space-y-5 flex-col items-center">
-                  <label
-                    htmlFor="username"
-                    className="text-wrap text-white font-serif text-sm lg:text-[1rem]"
-                  >
-                    Username:{" "}
+
+                  <label className="w-full mb-4">
+                    <span className="text-white font-serif text-lg">Username</span>
                     <input
                       type="text"
-                      placeholder="Enter username"
-                      className="pl-2 bg-[#1B1C30] w-[55%] focus:outline-none text-slate-500 focus:bg-[#292B4B] focus:text-white ml-1 text-[1rem] rounded"
-                      id="username"
+                      className="w-full mt-2 px-3 py-2 bg-[#292B4B] rounded-lg text-white"
                       value={editableUserName}
                       onChange={(e) => setEditableUserName(e.target.value)}
                     />
                   </label>
-                  <label
-                    htmlFor="email"
-                    className="text-wrap text-white font-serif text-[1rem]"
-                  >
-                    Email:{" "}
+
+                  <label className="w-full mb-4">
+                    <span className="text-white font-serif text-lg">Email</span>
                     <input
                       type="email"
-                      placeholder="Enter email"
-                      className="pl-2 bg-[#1B1C30] w-[75%] focus:outline-none text-slate-500 focus:bg-[#292B4B] focus:text-white ml-1 text-[1rem] rounded"
-                      id="email"
+                      className="w-full mt-2 px-3 py-2 bg-[#292B4B] rounded-lg text-white"
                       value={editableUserEmail}
                       onChange={(e) => setEditableUserEmail(e.target.value)}
                     />
                   </label>
-                  <label
-                    htmlFor="adminSelection"
-                    className="text-white font-serif text-[1rem]"
-                  >
-                    Role :{" "}
+
+                  <label className="w-full mb-6">
+                    <span className="text-white font-serif text-lg">Role</span>
                     <select
-                      name=""
-                      id="adminSelection"
                       value={role}
-                      onChange={(e) => {
-                        setRole(e.target.value);
-                      }}
-                      className="bg-[#292B4B] text-center w-[60%] ml-2 rounded p-1"
+                      onChange={(e) => setRole(e.target.value)}
+                      className="w-full mt-2 px-3 py-2 bg-[#292B4B] rounded-lg text-white"
                     >
                       <option value="Admin">Admin</option>
                       <option value="User">User</option>
                     </select>
                   </label>
-                  <div className="pt-4">
-                    <button
-                      disabled={isUpdating}
-                      type="button"
-                      className="w-[10rem] h-[2rem] rounded-3xl text-bold text-white bg-purple-700 hover:bg-purple-800 cursor-pointer"
-                      onClick={updateHandler}
-                    >
-                      {isUpdating ? "Updating.." : "Update"}
-                    </button>
-                    {isUpdating && (
-                      <div className="flex justify-center items-center my-1">
-                        <Loader />
-                      </div>
-                    )}
-                  </div>
+
+                  <button
+                    disabled={isUpdating}
+                    onClick={updateHandler}
+                    className="w-full py-2 bg-[#7303c0] text-white rounded-lg hover:bg-purple-800"
+                  >
+                    {isUpdating ? "Updating..." : "Update"}
+                  </button>
+                  {isUpdating && (
+                    <div className="mt-4">
+                      <Loader />
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </section>
     </div>
