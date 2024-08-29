@@ -128,7 +128,7 @@ const CategoryList = () => {
               </tr>
             </thead>
             <tbody>
-              {categories &&
+              {categories && categories.length > 0 ? (
                 categories.map((category, index) => (
                   <tr key={category._id} className={`bg-[#24253C] ${index % 2 === 0 ? 'bg-opacity-75' : 'bg-opacity-50'} hover:bg-opacity-90 transition-all duration-200 ease-in-out`}>
                     <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
@@ -156,7 +156,9 @@ const CategoryList = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))):(
+                  <p className=" text-white text-xl m-4 text-center"> No categories yet!!</p>
+                )}
             </tbody>
           </table>
         </div>

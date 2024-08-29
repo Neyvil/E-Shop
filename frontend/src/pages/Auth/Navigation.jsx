@@ -25,7 +25,7 @@ import {
   useCurrentProfileDetailsQuery,
 } from "../../redux/api/usersApiSlice";
 import { logout } from "../../redux/features/auth/authSlice";
-import img from "../../image/img1.jpg";
+import img from "../../image/defaultProfile.jpg";
 
 const Navigation = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -56,8 +56,11 @@ const Navigation = () => {
         /\\/g,
         "/"
       )}`;
-
-      setProfilePic(imgstr);
+      if (imgstr) {
+        setProfilePic(imgstr);
+      }else{
+        setProfilePic(img)
+      }
     }
   }, [currentProfileData]);
 
@@ -134,9 +137,11 @@ const Navigation = () => {
         )}
 
         <hr className=" mt-3 mx-2 border rounded-xl border-[#27283B]" />
-        <div className={`${
-          showSidebar ? "show-scrollbar" : ""
-        } flex flex-col text-center space-y-6 mt-8 pl-4`}>
+        <div
+          className={`${
+            showSidebar ? "show-scrollbar" : ""
+          } flex flex-col text-center space-y-6 mt-8 pl-4`}
+        >
           <Link
             to="/"
             className="flex items-center transition-transform transform hover:translate-x-5"
@@ -197,8 +202,6 @@ const Navigation = () => {
                   PRODUCTS
                 </span>{" "}
               </Link>
-
-              
             </div>
           ) : (
             <div className=" space-y-6">

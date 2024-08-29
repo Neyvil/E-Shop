@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import img1 from "../image/img7.png"
-import img2 from "../image/img8.jpg"
-import img3 from "../image/img5.jpg"
+import img1 from "../image/img1.jpg"
+import img2 from "../image/img2.jpg"
+import img3 from "../image/img3.jpg"
 
 const Carousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);

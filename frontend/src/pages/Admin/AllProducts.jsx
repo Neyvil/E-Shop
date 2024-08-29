@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 
 const AllProducts = () => {
   const { data: products, isLoading, isError } = useAllProductsQuery();
+  console.log(products)
 
   if (isLoading) {
     return (
@@ -34,17 +35,20 @@ const AllProducts = () => {
       <h1 className="font-serif font-bold text-3xl lg:text-4xl text-white mb-8">
         All <span className="text-[#7303c0]">Products</span>
       </h1>
-      {products &&
+      {products && products.length > 0 ? (
         [
           ...new Map(
             products.map((product) => [product.category._id, product.category])
           ).values(),
         ].map((category) => (
           <div key={category._id} className="mb-8">
-            <h2 className="text-2xl font-serif font-semibold text-white mb-4">
-              {category.name}
-            </h2>
-            <div className="w-full my-5">
+            <div className="w-full flex flex-col items-center mb-8">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-serif font-semibold text-white text-center">
+                {category.name}
+              </h2>
+            </div>
+
+            <div className="w-[50%] sm:w-full my-5">
               <svg
                 version="1.1"
                 id="line_2"
@@ -85,13 +89,13 @@ const AllProducts = () => {
             <div className="grid grid-cols-1 gap-8 justify-items-center lg:grid-cols-2 xl:grid-cols-3">
               {products.filter(
                 (product) => product.category._id === category._id
-              ).length >= 0 ? (
+              ).length > 0 ? (
                 products
                   .filter((product) => product.category._id === category._id)
                   .map((filteredProduct) => (
                     <div
                       key={filteredProduct._id}
-                      className="block w-full max-w-xs bg-[#1e1f3b] p-4 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                      className="block w-full min-h-[400px] max-w-xs bg-[#1e1f3b] p-4 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
                     >
                       <div className="relative w-full h-[200px] rounded-lg overflow-hidden">
                         <img
@@ -163,7 +167,12 @@ const AllProducts = () => {
               )}
             </div>
           </div>
-        ))}
+        ))
+      ) : (
+        <div className="text-white text-xl">
+          No products Yet. Coming soon...
+        </div>
+      )}
     </div>
   );
 };

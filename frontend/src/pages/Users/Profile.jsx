@@ -8,7 +8,7 @@ import {
 import Loader from "../../components/Loader";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { SquarePen } from "lucide-react";
-import img from "../../image/img1.jpg";
+import img from "../../image/defaultProfile.jpg";
 import { Eye, EyeOff, Mail, UserRound } from "lucide-react";
 
 const Profile = () => {

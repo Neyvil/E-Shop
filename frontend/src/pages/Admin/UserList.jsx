@@ -6,7 +6,7 @@ import {
   useGetUsersQuery,
   useUpdateUserMutation,
 } from "../../redux/api/usersApiSlice";
-import img from "../../image/img1.jpg";
+import img from "../../image/defaultProfile.jpg";
 import moment from "moment";
 import { Trash, FilePenLine, X } from "lucide-react";
 import AdminMenu from "./AdminMenu";
