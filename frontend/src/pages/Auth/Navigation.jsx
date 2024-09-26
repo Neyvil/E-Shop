@@ -169,7 +169,7 @@ const Navigation = () => {
             to="/store"
             className="flex items-center transition-transform transform hover:translate-x-5"
           >
-            <Store size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+            <Store size={26} color="#ff0066" className="mr-2 mt-[1rem] " />
             <span className="hidden nav-item-name mt-[1rem]">STORE</span>{" "}
           </Link>
 

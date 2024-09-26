@@ -90,12 +90,15 @@ const CategoryList = () => {
 
   return (
     <div className="h-screen flex justify-center items-center bg-[#292B4B] overflow-y-auto">
-      <div className="relative m-16 ">
-       <AdminMenu/> 
+      <div className="relative m-16 z-50 ">
+        <AdminMenu />
       </div>
       <section className="w-[85%] bg-[#1B1C30] shadow-xl p-[2rem] flex flex-col items-center text-center rounded-xl">
         <h1 className="text-4xl font-serif font-bold text-white lg:mt-0 mb-8">
-          Manage <span className="text-[#7303c0]">Categories</span>
+          Manage{" "}
+          <span className="text-gradient bg-gradient-to-r from-[#a445b2] via-[#d41872] to-[#ff0066] bg-clip-text text-transparent">
+            Categories
+          </span>
         </h1>
         <form className="w-full lg:w-[60%] flex flex-col md:flex-row text-xl font-serif justify-around items-center space-y-4 md:space-y-0">
           <input
@@ -111,7 +114,7 @@ const CategoryList = () => {
           />
           <button
             onClick={selectedCategory ? updateHandler : handleCreateCategory}
-            className="w-full md:w-[10rem] h-[3rem] rounded-full font-bold text-white text-xl bg-purple-700 hover:bg-purple-800 transition-all duration-300 ease-in-out"
+            className="w-[15%] transform hover:scale-105 inline-flex items-center px-4 py-2 text-md font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:bg-gradient-to-l hover:shadow-lg transition-all duration-300"
           >
             {selectedCategory ? "Update" : "Submit"}
           </button>
@@ -122,15 +125,26 @@ const CategoryList = () => {
           <table className="w-[90%] border-collapse">
             <thead className="sticky top-0 bg-[#2A2C4A] z-10">
               <tr>
-                <th className="text-white font-bold p-4 font-serif text-xl">ID</th>
-                <th className="text-white font-bold p-4 font-serif text-xl">Categories</th>
-                <th className="text-white font-bold p-4 font-serif text-xl">Actions</th>
+                <th className="text-white font-bold p-4 font-serif text-xl">
+                  ID
+                </th>
+                <th className="text-white font-bold p-4 font-serif text-xl">
+                  Categories
+                </th>
+                <th className="text-white font-bold p-4 font-serif text-xl">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {categories && categories.length > 0 ? (
                 categories.map((category, index) => (
-                  <tr key={category._id} className={`bg-[#24253C] ${index % 2 === 0 ? 'bg-opacity-75' : 'bg-opacity-50'} hover:bg-opacity-90 transition-all duration-200 ease-in-out`}>
+                  <tr
+                    key={category._id}
+                    className={`bg-[#24253C] ${
+                      index % 2 === 0 ? "bg-opacity-75" : "bg-opacity-50"
+                    } hover:bg-opacity-90 transition-all duration-200 ease-in-out`}
+                  >
                     <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
                       {category._id ? category._id.slice(-8) : category._id}
                     </td>
@@ -156,9 +170,13 @@ const CategoryList = () => {
                       </div>
                     </td>
                   </tr>
-                ))):(
-                  <p className=" text-white text-xl m-4 text-center"> No categories yet!!</p>
-                )}
+                ))
+              ) : (
+                <p className=" text-white text-xl m-4 text-center">
+                  {" "}
+                  No categories yet!!
+                </p>
+              )}
             </tbody>
           </table>
         </div>
