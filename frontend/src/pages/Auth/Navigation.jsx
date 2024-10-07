@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import FavouritesCount from "../Products/FavouritesCount";
 import {
   House,
   Store,
@@ -9,7 +10,6 @@ import {
   LogOut,
   ShoppingCart,
   CircleUserRound,
-  Users,
   Heart,
   ShieldCheck,
   List,
@@ -94,7 +94,7 @@ const Navigation = () => {
             showSidebar ? "text-3xl" : "text-xl"
           } transition-all duration-300`}
         >
-          E<span className=" text-[#7303c0]">-</span>Shop
+          E<span className=" text-[#ff0066]">-</span>Shop
         </h1>
         {userInfo ? (
           <Link
@@ -118,15 +118,15 @@ const Navigation = () => {
                   {userInfo.username.charAt(0).toUpperCase() +
                     userInfo.username.slice(1)}
                 </h2>
-                <ShieldCheck size={20} color="#7303c0" />
+                <ShieldCheck size={20} color="#ff0066" />
               </label>
 
               {userInfo.isAdmin ? (
-                <p className=" text-sm text-bold text-[#7303c0] text-center">
+                <p className=" text-sm text-bold text-[#ff0066] text-center">
                   {showSidebar ? "Admininstrator" : "Admin"}
                 </p>
               ) : (
-                <p className="text-sm text-bold text-[#7303c0] text-center">
+                <p className="text-sm text-bold text-[#ff0066] text-center">
                   User
                 </p>
               )}
@@ -146,7 +146,7 @@ const Navigation = () => {
             to="/"
             className="flex items-center transition-transform transform hover:translate-x-5"
           >
-            <House size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+            <House size={26} color="#ff0066" className="mr-2 mt-[1rem] " />
             <span className="hidden nav-item-name mt-[1rem]">HOME</span>{" "}
           </Link>
 
@@ -157,7 +157,7 @@ const Navigation = () => {
             >
               <LayoutDashboard
                 size={26}
-                color="#7303c0"
+                color="#ff0066"
                 className="mr-2 mt-[1rem] "
               />
               <span className="hidden nav-item-name mt-[1rem]">DASHBOARD</span>{" "}
@@ -179,7 +179,7 @@ const Navigation = () => {
                 to="/admin/orderlist"
                 className="flex items-center transition-transform transform hover:translate-x-5"
               >
-                <Box size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+                <Box size={26} color="#ff0066" className="mr-2 mt-[1rem] " />
                 <span className="hidden nav-item-name mt-[1rem]">
                   ORDERS
                 </span>{" "}
@@ -188,7 +188,7 @@ const Navigation = () => {
                 to="/admin/categorylist"
                 className="flex items-center transition-transform transform hover:translate-x-5"
               >
-                <List size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+                <List size={26} color="#ff0066" className="mr-2 mt-[1rem] " />
                 <span className="hidden nav-item-name mt-[1rem]">
                   CATEGORY
                 </span>{" "}
@@ -197,10 +197,20 @@ const Navigation = () => {
                 to="/admin/allproductslist"
                 className="flex items-center transition-transform transform hover:translate-x-5"
               >
-                <Boxes size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+                <Boxes size={26} color="#ff0066" className="mr-2 mt-[1rem] " />
                 <span className="hidden nav-item-name mt-[1rem]">
                   PRODUCTS
                 </span>{" "}
+              </Link>
+              <Link
+                to="/favourite"
+                className="flex items-center transition-transform transform hover:translate-x-5"
+              >
+                <Heart size={26} color="#ff0066" className="mr-2 mt-[1rem] " />
+                <span className="hidden nav-item-name mt-[1rem]">
+                  FAVOURITE
+                </span>{" "}
+                <FavouritesCount/>
               </Link>
             </div>
           ) : (
@@ -211,7 +221,7 @@ const Navigation = () => {
               >
                 <ShoppingCart
                   size={26}
-                  color="#7303c0"
+                  color="#ff0066"
                   className="mr-2 mt-[1rem] "
                 />
                 <span className="hidden nav-item-name mt-[1rem]">CART</span>{" "}
@@ -222,7 +232,7 @@ const Navigation = () => {
               >
                 <SquareUser
                   size={26}
-                  color="#7303c0"
+                  color="#ff0066"
                   className="mr-2 mt-[1rem] "
                 />
                 <span className="hidden nav-item-name mt-[1rem]">PROFILE</span>{" "}
@@ -231,7 +241,7 @@ const Navigation = () => {
                 to="/favourite"
                 className="flex items-center transition-transform transform hover:translate-x-5"
               >
-                <Heart size={26} color="#7303c0" className="mr-2 mt-[1rem] " />
+                <Heart size={26} color="#ff0066" className="mr-2 mt-[1rem] " />
                 <span className="hidden nav-item-name mt-[1rem]">
                   FAVOURITE
                 </span>{" "}
@@ -248,7 +258,7 @@ const Navigation = () => {
               to="/login"
               className="flex items-center transition-transform transform hover:translate-x-5"
             >
-              <LogIn size={26} color="#7303c0" className="mr-2 mt-[2rem] " />
+              <LogIn size={26} color="#ff0066" className="mr-2 mt-[2rem] " />
               <span className="hidden nav-item-name mt-[2rem]">Login</span>{" "}
             </Link>
           </li>
@@ -259,7 +269,7 @@ const Navigation = () => {
             >
               <CircleUserRound
                 size={26}
-                color="#7303c0"
+                color="#ff0066"
                 className="mr-2 mt-[2rem] "
               />
               <span className="hidden nav-item-name mt-[2rem]">Register</span>{" "}
@@ -273,7 +283,7 @@ const Navigation = () => {
               onClick={logoutHandler}
               className="flex items-start pb-4 transition-transform transform cursor-pointer hover:translate-x-5"
             >
-              <LogOut size={26} color="#7303c0" className="mr-2 mt-[2rem]" />
+              <LogOut size={26} color="#ff0066" className="mr-2 mt-[2rem]" />
               <span className="hidden nav-item-name mt-[2rem] ">Logout</span>
             </Link>
           </li>
