@@ -1,9 +1,10 @@
 import { Link, useParams } from "react-router-dom";
 import { useGetProductsQuery } from "./redux/api/productApiSlice";
-import Message from "./components/Message.jsx"
-import Loader from "./components/Loader.jsx"
-import Header from "./components/Header.jsx"
+import Message from "./components/Message.jsx";
+import Loader from "./components/Loader.jsx";
+import Header from "./components/Header.jsx";
 import Product from "./pages/Products/Product";
+import HeartIcon from "./pages/Products/HeartIcon.jsx";
 
 const Home = () => {
   const { keyword } = useParams();
@@ -15,11 +16,12 @@ const Home = () => {
       {isLoading ? (
         <Loader />
       ) : isError ? (
-        <Message variant="danger">
+        <Message variant="error">
           {isError?.data.message || isError.error}
         </Message>
       ) : (
         <>
+        
           <div className="flex justify-between items-center">
             <h1 className="ml-[20rem] mt-[10rem] text-[3rem]">
               Special Products
@@ -32,6 +34,7 @@ const Home = () => {
               Shop
             </Link>
           </div>
+          <div className="w-full h-1 bg-gradient-to-r from-[#7303c0] to-[#ff0066] rounded-full mt-2"></div>
 
           <div>
             <div className="flex justify-center flex-wrap mt-[2rem]">
