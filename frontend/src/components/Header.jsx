@@ -28,7 +28,7 @@ const Header = () => {
       <div className="container mx-auto flex flex-col-reverse lg:flex-row justify-between items-start gap-12 px-4">
         
         {/* Left Side: Small Products */}
-        <div className="flex-1 w-full lg:w-[30%]">
+        <div className="flex-1 w-full lg:w-[35%]">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-2 animate-fadeInUp">
             {data.map((product) => (
               <div
@@ -42,7 +42,7 @@ const Header = () => {
         </div>
 
         {/* Right Side: Product Carousel */}
-        <div className="flex-1 w-full lg:w-[70%]">
+        <div className="flex-1 w-full lg:w-[65%]">
           <ProductCarousel />
         </div>
       </div>
