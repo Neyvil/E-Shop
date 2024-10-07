@@ -11,8 +11,9 @@ const Home = () => {
   const { data, isLoading, isError } = useGetProductsQuery({ keyword });
 
   return (
-    <>
+    <div className="bg-[#1e1f3b] min-h-screen text-white">
       {!keyword ? <Header /> : null}
+
       {isLoading ? (
         <Loader />
       ) : isError ? (
@@ -21,32 +22,26 @@ const Home = () => {
         </Message>
       ) : (
         <>
-          <div className="flex justify-between items-center ">
-            <h1 className="ml-[20rem] mt-[5rem] text-[3rem]">
-              Special Products
-            </h1>
-
+          <div className="flex justify-between items-center bg-[#1e1f3b] py-4">
+            <h1 className="ml-[10rem] text-[3rem]">Special Products</h1>
             <Link
               to="/shop"
-              className="bg-pink-600 font-bold rounded-full py-2 px-10 mr-[18rem] mt-[10rem]"
+              className="bg-pink-600 font-bold rounded-full py-2 px-10 mr-[10rem]"
             >
               Shop
             </Link>
           </div>
-          <div className="w-full h-1 bg-gradient-to-r from-[#7303c0] to-[#ff0066] rounded-full mt-2"></div>
 
-          <div>
-            <div className="flex justify-center flex-wrap mt-[2rem]">
-              {data.products.map((product) => (
-                <div key={product._id}>
-                  <Product product={product} />
-                </div>
-              ))}
-            </div>
+          <div className="flex justify-center flex-wrap mt-[2rem]">
+            {data.products.map((product) => (
+              <div key={product._id}>
+                <Product product={product} />
+              </div>
+            ))}
           </div>
         </>
       )}
-    </>
+    </div>
   );
 };
 
