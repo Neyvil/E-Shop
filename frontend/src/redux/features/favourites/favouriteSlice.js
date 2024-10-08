@@ -6,13 +6,13 @@ const favouriteSlice = createSlice({
   reducers: {
     addToFavourites: (state, action) => {
       //Check if the product is not already favourites
-      if (!state.some((product) => product._id == action.payload._id)) {
+      if (!state.some((product) => product._id === action.payload._id)) {
         state.push(action.payload);
       }
     },
     removeFromFavourites: (state, action) => {
       // Remove the product with the matchingId
-      return state.filter((product) => product._id != action.payload._id);
+      return state.filter((product) => product._id !== action.payload._id);
     },
     setFavourites: (state, action) => {
       // Set the favourites from localStorage
@@ -23,5 +23,5 @@ const favouriteSlice = createSlice({
 
 export const { addToFavourites, removeFromFavourites, setFavourites } =
   favouriteSlice.actions;
-export const selectFavouriteProduct = (state) => state.setFavourites;
+export const selectFavouriteProduct = (state) => state.favourites;
 export default favouriteSlice.reducer;

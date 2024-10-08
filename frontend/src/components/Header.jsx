@@ -19,7 +19,7 @@ const Header = () => {
       {/* Welcome Text */}
       <div className="text-center mb-8 animate-fadeInUp">
         <h1 className="text-4xl font-bold ">
-          Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">E-Shop by Nabajyoti</span>
+          Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">Nabajyoti E-Shop</span>
         </h1>
         <p className="text-lg mt-2 animate-fadeIn">Find the best products curated just for you</p>
       </div>

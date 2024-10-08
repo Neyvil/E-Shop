@@ -23,7 +23,7 @@ const Home = () => {
       ) : (
         <>
           <div className="flex justify-between items-center bg-[#1e1f3b] py-4">
-            <h1 className="ml-[10rem] text-[3rem]">Special Products</h1>
+            <h1 className="ml-[10rem] text-[3rem] animate-fadeInUp">Special Products</h1>
             <Link
               to="/shop"
               className="bg-pink-600 font-bold rounded-full py-2 px-10 mr-[10rem]"
