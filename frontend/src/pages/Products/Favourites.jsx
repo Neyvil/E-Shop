@@ -17,9 +17,18 @@ const Favourites = () => {
       </h1>
 
       <div className="flex flex-wrap">
-        {favourite.map((product) => (
-          <Product key={product._id} product={product} />
-        ))}
+        {favourite && favourite.length === 0 ? (
+          favourite.map((product) => (
+            <Product key={product._id} product={product} />
+          ))
+        ) : (
+          <>
+            <h1 className=" text-gradient font-serif font-bold  bg-gradient-to-r from-[#a445b2] via-[#d41872] to-[#ff0066] bg-clip-text text-transparent text-2xl">
+              {" "}
+              NO FAVOURITES YET ...
+            </h1>
+          </>
+        )}
       </div>
     </div>
   );
