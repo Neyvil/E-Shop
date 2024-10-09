@@ -20,7 +20,7 @@ const HeartIcon = ({ product }) => {
   useEffect(() => {
     const favouritesFromLocalStorage = getFavouritesFromLocalStorage();
     dispatch(setFavourites(favouritesFromLocalStorage));
-  }, []);
+  }, [dispatch]);
 
   const toggleFavourites = () => {
     if (isFavourites) {
@@ -33,15 +33,16 @@ const HeartIcon = ({ product }) => {
       addFavouriteToLocalStorage(product);
     }
   };
+
   return (
     <div
-      className="absolute top-4 right-12 md:right-6 cursor-pointer "
+      className="relative pt-2 lg:pl-0 lg:pb-0 lg:absolute  md:top-4 md:right-6 lg:top-6 lg:right-8 cursor-pointer"
       onClick={toggleFavourites}
     >
       {isFavourites ? (
-        <FaHeart className=" text-pink-600 text-xl" />
+        <FaHeart className="text-pink-600 text-xl md:text-2xl" />
       ) : (
-        <FaRegHeart className="text-purple-600 text-2xl" />
+        <FaRegHeart className="text-purple-600 text-xl md:text-2xl" />
       )}
     </div>
   );

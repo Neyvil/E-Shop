@@ -33,26 +33,27 @@ const ProductDetail = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const [createReview, { isLoading: loadingProductReview }] =
     useCreateReviewMutation();
-  const addToast=useToast();
+  const addToast = useToast();
 
-  const submitHandler = async(e)=>{
-    e.preventDefault()
+  const submitHandler = async (e) => {
+    e.preventDefault();
     try {
       await createReview({
-        productId,rating,comment
-      }).unwrap()
-      refetch()
-      addToast("success","Review created successfully👍🏻");
-      
+        productId,
+        rating,
+        comment,
+      }).unwrap();
+      refetch();
+      addToast("success", "Review created successfully👍🏻");
     } catch (error) {
-      addToast("error",error?.data?.message || error.message)      
+      addToast("error", error?.data || error.message);
     }
-  }
+  };
 
   return (
     <div className="bg-[#1e1f3b] min-h-screen text-white">
       {/* Navigation */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-4 md:py-6">
         <Link to="/" className="text-white font-semibold hover:underline">
           ← Go Back
         </Link>
@@ -66,12 +67,10 @@ const ProductDetail = () => {
           {error?.data?.message || error.message}
         </Message>
       ) : (
-        <div className="container mx-auto px-4 items-center py-10 grid lg:grid-cols-2 gap-10">
+        <div className="container mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
           {/* Product Image and Heart Icon */}
           <div className="relative">
-            {" "}
-            {/* Ensure this container is `relative` */}
-            <div className="p-6 bg-[#1B1C30] shadow-lg rounded-xl">
+            <div className="p-4 sm:p-6 bg-[#1B1C30] shadow-lg rounded-xl">
               <img
                 src={
                   product.productImage
@@ -86,74 +85,81 @@ const ProductDetail = () => {
               />
             </div>
             {/* Heart Icon placed absolutely in the top-right corner */}
+            <div className="absolute top-4 right-4">
+              <HeartIcon product={product} className="text-[#ff0066]" />
+            </div>
           </div>
 
           {/* Product Details */}
-          <div className="bg-[#1B1C30] p-8 relative rounded-lg shadow-lg text-white">
-            <HeartIcon product={product} className="  text-[#ff0066]" />
-            <div className="relative">
-              <h1 className="text-4xl font-bold text-[#ff0066] mb-4">
+          <div className="bg-[#1B1C30] p-6 md:p-8 relative rounded-lg shadow-lg text-white">
+            <div className="relative mb-6">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#ff0066] mb-4">
                 {product.name}
               </h1>
+              <div className="w-full h-1 bg-gradient-to-r from-[#7303c0] to-[#ff0066] rounded-full mb-2"></div>
             </div>
-            <div className="w-full h-1 bg-gradient-to-r from-[#7303c0] to-[#ff0066] rounded-full mb-2"></div>
 
-            <p className="text-gray-400 text-lg mb-6">{product.description}</p>
+            <p className="text-gray-400 text-base sm:text-lg mb-6">
+              {product.description}
+            </p>
 
             {/* Price */}
             <div className="mb-8">
-              <span className="text-5xl font-bold text-[#7303c0]">
+              <span className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#7303c0]">
                 ₹ {product.price}
               </span>
-              <span className="block text-gray-500 mt-2">
+              <span className="block text-gray-500 mt-1 md:mt-2 text-sm">
                 Inclusive of all taxes
               </span>
             </div>
 
-            {/* Product Information */}
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="flex items-center">
                 <Store className="text-[#7303c0] mr-2" />
-                <span className="text-white">Brand: {product.brand}</span>
+                <span className="text-white text-sm sm:text-base">
+                  Brand: {product.brand}
+                </span>
               </div>
               <div className="flex items-center">
                 <Clock className="text-[#7303c0] mr-2" />
-                <span className="text-white">
+                <span className="text-white text-sm sm:text-base">
                   Added: {moment(product.createAt).fromNow()}
                 </span>
               </div>
               <div className="flex items-center">
                 <Star className="text-[#7303c0] mr-2" />
-                <span className="text-white">
+                <span className="text-white text-sm sm:text-base">
                   Reviews: {product.numReviews}
                 </span>
               </div>
               <div className="flex items-center">
                 <Star className="text-[#7303c0] mr-2" />
-                <span className="text-white">Ratings: {product.rating}</span>
+                <span className="text-white text-sm sm:text-base">
+                  Ratings: {product.rating.toFixed(2)}
+                </span>
               </div>
               <div className="flex items-center">
                 <ShoppingCart className="text-[#7303c0] mr-2" />
-                <span className="text-white">Quantity: {product.quantity}</span>
+                <span className="text-white text-sm sm:text-base">
+                  Quantity: {product.quantity}
+                </span>
               </div>
               <div className="flex items-center">
                 <Box className="text-[#7303c0] mr-2" />
-                <span className="text-white">
+                <span className="text-white text-sm sm:text-base">
                   In Stock: {product.countInStock}
                 </span>
               </div>
             </div>
-            <div className="flex justify-between mb-4">
-              <Ratings
-                value={product.rating}
-                text={` ${product.numReviews} reviews`}
-              />
-              {product.countInStock > 0 && (
-                <div>
+
+            
+            <div className="flex flex-col md:flex-row md:justify-between mb-4 space-y-4 md:space-y-0 md:space-x-4">
+              <div>
+                {product.countInStock > 0 && (
                   <select
                     value={qty}
                     onChange={(e) => setQty(e.target.value)}
-                    className=" p-2 w-[6rem] rounded-lg text-black"
+                    className="p-2 w-full md:w-[6rem] rounded-lg text-black"
                   >
                     {[...Array(product.countInStock).keys()].map((x) => (
                       <option key={x + 1} value={x + 1}>
@@ -161,25 +167,26 @@ const ProductDetail = () => {
                       </option>
                     ))}
                   </select>
-                </div>
-              )}
-            </div>
-
-            <div className="flex space-x-4">
-              <button
-                //onClick={addToCartHandler}
-                disabled={product.countInStock == 0}
-                className="bg-[#ff0066] hover:bg-[#ff337f] text-white font-bold py-3 px-6 rounded-lg transition-all"
-              >
-                Add to Cart
-              </button>
-              <button className="bg-[#7303c0] hover:bg-[#8536d0] text-white font-bold py-3 px-6 rounded-lg transition-all">
-                Buy Now
-              </button>
+                )}
+              </div>
+              <div className="flex space-x-4 w-full md:w-auto">
+                <button
+                  //onClick={addToCartHandler}
+                  disabled={product.countInStock == 0}
+                  className="bg-[#ff0066] hover:bg-[#ff337f] w-full py-2 px-6 rounded-lg font-bold transition-all"
+                >
+                  Add to Cart
+                </button>
+                <button className="bg-[#7303c0] hover:bg-[#8536d0] w-full py-2 px-6 rounded-lg font-bold transition-all">
+                  Buy Now
+                </button>
+              </div>
             </div>
           </div>
-          <div className="bg-[#1B1C30] p-8 relative rounded-lg shadow-lg text-white lg:col-span-2">
-            <div className="mt-[5rem] container flex flex-wrap items-start justify-between ml-[10rem] ">
+
+          {/* Product Tabs (Reviews, Description, ratings) */}
+          <div className=" p-6 md:p-8  text-white lg:col-span-2">
+            <div className="container">
               <ProductTabs
                 loadingProductReview={loadingProductReview}
                 userInfo={userInfo}

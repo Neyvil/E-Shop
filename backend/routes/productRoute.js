@@ -64,7 +64,7 @@ router
 router.route("/allproducts").get(fetchAllProducts);
 router
   .route("/:id/reviews")
-  .post(authenticate, authorizeAdmin, checkId, addProductReview);
+  .post(authenticate,  checkId, addProductReview);
 router.route("/top").get(fetchTopProduct);
 router.route("/new").get(fetchNewProduct);
 router

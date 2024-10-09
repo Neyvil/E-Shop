@@ -23,7 +23,7 @@ const SmallProduct = ({ product }) => {
           </h2>
         </Link>
         <span className="inline-flex items-center px-2.5 py-0.5 mt-1 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:bg-gradient-to-l hover:shadow-lg transition-all duration-300">
-          $ {product.price}
+        ₹ {product.price}
         </span>
       </div>
     </div>
