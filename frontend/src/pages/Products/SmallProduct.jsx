@@ -4,7 +4,7 @@ import img from "../../image/img1.jpg";
 const SmallProduct = ({ product }) => {
   return (
     <div className="flex flex-col items-center space-y-4 hover:bg-[#2c2d49] transition-colors duration-300 p-4 rounded-lg">
-      {/* Product Image */}
+    
       <img
         src={
           product.productImage
@@ -15,7 +15,7 @@ const SmallProduct = ({ product }) => {
         className="w-[14rem] h-[10rem] rounded-lg object-cover"
       />
 
-      {/* Product Details */}
+      
       <div className="text-center">
         <Link to={`/product/${product._id}`}>
           <h2 className="text-lg font-semibold text-white">
