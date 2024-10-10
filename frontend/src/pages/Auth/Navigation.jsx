@@ -29,6 +29,8 @@ import img from "../../image/defaultProfile.jpg";
 
 const Navigation = () => {
   const { userInfo } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart);
+
   const [profilePic, setProfilePic] = useState(img);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -180,7 +182,7 @@ const Navigation = () => {
             <></>
           )}
           <NavLink
-            to="/store"
+            to="/shop"
             className="flex items-center transition-transform transform hover:translate-x-5"
           >
             {({ isActive }) => (
@@ -273,6 +275,15 @@ const Navigation = () => {
                       color={isActive ? "darkviolet" : "#ff0066"}
                     />
                     <span className="hidden nav-item-name mt-[1rem]">CART</span>
+                    <div className="absolute top-1 ">
+                      {cartItems.length > 0 && (
+                        <span>
+                          <span className=" px-1 py-0 text-sm text-white bg-violet-700 rounded-full">
+                            {cartItems.reduce((a, c) => a + c.qty, 0)}
+                          </span>
+                        </span>
+                      )}
+                    </div>
                   </>
                 )}
               </NavLink>

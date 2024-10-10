@@ -13,13 +13,14 @@ import moment from "moment";
 import HeartIcon from "./HeartIcon.jsx";
 import Default from "../../image/defaultProductImage.png";
 import Ratings from "./Ratings.jsx";
+import { addToCart } from "../../redux/features/cart/cartSlice.js";
 import ProductTabs from "./ProductTabs.jsx";
 
 const ProductDetail = () => {
   const { id: productId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const [qty, setQty] = useState(1);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -51,10 +52,10 @@ const ProductDetail = () => {
     }
   };
 
-
-  const addToCartHandler = () =>{
-
-  }
+  const addToCartHandler = () => {
+    dispatch(addToCart({ ...product, qty }));
+    navigate('/cart');
+  };
 
   return (
     <div className="bg-[#1e1f3b] min-h-screen text-white">
@@ -158,7 +159,6 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            
             <div className="flex flex-col md:flex-row md:justify-between mb-4 space-y-4 md:space-y-0 md:space-x-4">
               <div>
                 {product.countInStock > 0 && (

@@ -57,8 +57,15 @@ const addProduct = async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, description, price, category, quantity, brand, countInStock } =
-      req.body;
+    const {
+      name,
+      description,
+      price,
+      category,
+      quantity,
+      brand,
+      countInStock,
+    } = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -227,6 +234,22 @@ const fetchNewProduct = asyncHandler(async (req, res) => {
   }
 });
 
+const filterProducts = asyncHandler(async (req, res) => {
+  try {
+    const { checked, radio } = req.body;
+
+    let args = {};
+    if (checked.length > 0) args.category = checked;
+    if (radio.length) args.price = { $gte: radio[0], $lte: radio[1] };
+
+    const products = await Product.find(args);
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
+
 export {
   fetchNewProduct,
   addProduct,
@@ -236,5 +259,6 @@ export {
   fetchProductById,
   addProductReview,
   fetchTopProduct,
+  filterProducts,
   fetchAllProducts,
 };

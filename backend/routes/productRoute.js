@@ -13,6 +13,7 @@ import {
   fetchProductById,
   addProductReview,
   fetchTopProduct,
+  filterProducts,
   fetchNewProduct,
   fetchAllProducts,
 } from "../controllers/productController.js";
@@ -88,5 +89,6 @@ router
     updateProduct
   )
   .delete(authenticate, authorizeAdmin, removeProduct);
+  router.route('/filtered-products').post(filterProducts)
 
 export default router;
