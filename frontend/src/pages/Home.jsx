@@ -1,10 +1,10 @@
 import { Link, useParams } from "react-router-dom";
-import { useGetProductsQuery } from "./redux/api/productApiSlice";
-import Message from "./components/Message.jsx";
-import Loader from "./components/Loader.jsx";
-import Header from "./components/Header.jsx";
-import Product from "./pages/Products/Product";
-import HeartIcon from "./pages/Products/HeartIcon.jsx";
+import { useGetProductsQuery } from "../redux/api/productApiSlice.js";
+import Message from "../components/Message.jsx";
+import Loader from "../components/Loader.jsx";
+import Header from "../components/Header.jsx";
+import Product from "./Products/Product.jsx";
+import HeartIcon from "./Products/HeartIcon.jsx";
 
 const Home = () => {
   const { keyword } = useParams();

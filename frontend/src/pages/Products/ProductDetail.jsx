@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useToast } from "../../components/Toast/ToastProvider";
 import {
   useGetProductDetailQuery,
@@ -18,7 +18,8 @@ import ProductTabs from "./ProductTabs.jsx";
 const ProductDetail = () => {
   const { id: productId } = useParams();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  
   const [qty, setQty] = useState(1);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -49,6 +50,11 @@ const ProductDetail = () => {
       addToast("error", error?.data || error.message);
     }
   };
+
+
+  const addToCartHandler = () =>{
+
+  }
 
   return (
     <div className="bg-[#1e1f3b] min-h-screen text-white">
@@ -171,7 +177,7 @@ const ProductDetail = () => {
               </div>
               <div className="flex space-x-4 w-full md:w-auto">
                 <button
-                  //onClick={addToCartHandler}
+                  onClick={addToCartHandler}
                   disabled={product.countInStock == 0}
                   className="bg-[#ff0066] hover:bg-[#ff337f] w-full py-2 px-6 rounded-lg font-bold transition-all"
                 >
