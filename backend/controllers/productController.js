@@ -1,5 +1,6 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
+import Category from "../models/categoryModel.js";
 import path from "path";
 import fs from "fs";
 
@@ -7,12 +8,17 @@ const addProduct = async (req, res) => {
   try {
     const {
       name,
-      category,
+      category, // category includes name
       description,
       brand,
       quantity,
       price,
       countInStock,
+      gender,
+      size,
+      color,
+      material,
+      warranty,
     } = req.body;
 
     if (
@@ -28,10 +34,15 @@ const addProduct = async (req, res) => {
     }
 
     // Access the uploaded file from req.file
-    const productImage = req.file.path;
+    const productImage = req.file ? req.file.path : undefined;
 
-    // Add your logic to create a new product using these fields
-    const product = new Product({
+    const categoryData = await Category.findById(category);
+    if (!categoryData) {
+      return res.status(400).json({ error: "Category not found" });
+    }
+
+    // Create a new product object based on category name
+    let productData = {
       name,
       category,
       description,
@@ -40,7 +51,26 @@ const addProduct = async (req, res) => {
       price,
       productImage,
       countInStock,
-    });
+    };
+
+    // Add specific attributes based on the category name
+    if (categoryData.name === "clothing") {
+      productData.clothingAttributes = {
+        gender,
+        size,
+        color,
+      };
+    } else if (categoryData.name === "electronics") {
+      productData.electronicsAttributes = {
+        warranty,
+      };
+    } else if (categoryData.name === "furniture") {
+      productData.furnitureAttributes = {
+        material,
+      };
+    }
+
+    const product = new Product(productData);
 
     // Save the product to the database
     await product.save();
@@ -55,6 +85,7 @@ const addProduct = async (req, res) => {
   }
 };
 
+
 const updateProduct = asyncHandler(async (req, res) => {
   try {
     const {
@@ -65,6 +96,11 @@ const updateProduct = asyncHandler(async (req, res) => {
       quantity,
       brand,
       countInStock,
+      gender,
+      size,
+      color,
+      material,
+      warranty,
     } = req.body;
 
     const product = await Product.findById(req.params.id);
@@ -73,27 +109,22 @@ const updateProduct = asyncHandler(async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
+    // Handle product image replacement
     if (req.file) {
       if (product.productImage) {
         const ImagePath = path.join("uploads/products", product.productImage);
         const existingImagePath = ImagePath.replace("uploads\\products\\", "");
-
         fs.unlink(existingImagePath, (err) => {
           if (err) {
             console.error("Failed to delete existing image:", err);
-          } else {
-            console.log(
-              "Successfully deleted existing image:",
-              existingImagePath
-            );
           }
         });
       }
 
       product.productImage = req.file.path;
-      console.log("New Image Path:", req.file.path);
     }
 
+    // Update basic fields
     product.name = name;
     product.description = description;
     product.price = price;
@@ -102,30 +133,43 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.brand = brand;
     product.countInStock = countInStock;
 
+    const categoryData = await Category.findById(category);
+    if (!categoryData) {
+      return res.status(400).json({ error: "Category not found" });
+    }
+
+    // Update specific attributes based on the category name
+    if (categoryData.name === "Clothing") {
+      product.clothingAttributes = { gender, size, color };
+    } else if (categoryData.name === "Electronics") {
+      product.electronicsAttributes = { warranty };
+    } else if (categoryData.name === "Furniture") {
+      product.furnitureAttributes = { material };
+    }
+
     const updatedProduct = await product.save();
-    res
-      .status(201)
-      .json({ message: "Successfully update product", updatedProduct });
+    res.status(201).json({ message: "Product successfully updated", updatedProduct });
   } catch (error) {
     console.error("Error:", error);
-    res
-      .status(400)
-      .json({ message: "Product update failed", error: error.message });
+    res.status(400).json({ message: "Product update failed", error: error.message });
   }
 });
+
 
 const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
       .populate("category")
       .limit(100)
-      .sort({ createAt: -1 });
+      .sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: "Internal server Error!!" });
   }
 });
+
+
 
 const removeProduct = asyncHandler(async (req, res) => {
   try {
@@ -242,13 +286,14 @@ const filterProducts = asyncHandler(async (req, res) => {
     if (checked.length > 0) args.category = checked;
     if (radio.length) args.price = { $gte: radio[0], $lte: radio[1] };
 
-    const products = await Product.find(args);
+    const products = await Product.find(args).populate("category");
     res.json(products);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server Error" });
   }
 });
+
 
 export {
   fetchNewProduct,

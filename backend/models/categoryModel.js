@@ -1,13 +1,31 @@
 import mongoose from "mongoose";
+const { Schema } = mongoose;
 
-const categorySchema = new mongoose.Schema({
+const categorySchema = new Schema({
   name: {
     type: String,
-    trim: true,
     required: true,
-    maxLength: 32,
+    trim: true,
     unique: true,
   },
-});
+  parentCategory: {
+    type: Schema.Types.ObjectId,
+    ref: 'Category',
+    default: null, // If null, this is a top-level category
+  },
+  subcategories: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Category', // Referencing other categories to create a hierarchy
+    }
+  ],
+  gender: {
+    type: String,
+    enum: ["male", "female", "unisex"],
+    default: null, // Optional, only for certain categories
+  },
+}, { timestamps: true });
 
-export default mongoose.model("Category", categorySchema);
+const Category = mongoose.model("Category", categorySchema);
+
+export default Category;

@@ -16,6 +16,7 @@ import AdminMenu from "./AdminMenu.jsx";
 function Products() {
   const params = useParams();
   const { data: productData } = useGetProductByIdQuery(params._id);
+  console.log(productData)
   const addToast = useToast();
 
   const [name, setName] = useState(productData?.name || "");
@@ -24,6 +25,11 @@ function Products() {
   const [description, setDescription] = useState(
     productData?.description || ""
   );
+  const [size, setSize] = useState("");
+const [gender, setGender] = useState("");
+const [warranty, setWarranty] = useState("");
+const [material, setMaterial] = useState("");
+
   const [price, setPrice] = useState(productData?.price || "");
   const [category, setCategory] = useState(productData?.category?._id || "");
   const [brand, setBrand] = useState(productData?.brand || "");
@@ -37,6 +43,8 @@ function Products() {
 
   const [productDeletion, { isloading: isDeleting }] =
     useRemoveProductMutation();
+
+
 
   const addProductImage = (event) => {
     const file = event.target.files[0];
@@ -62,9 +70,12 @@ function Products() {
       setBrand(productData.brand);
       setQuantity(productData.quantity);
       setStock(productData.countInStock);
+  
+      // Set fields based on category
       if (productData.category) {
-        setCategory(productData.category);
+        setCategory(productData.category._id);
       }
+  
       if (productData.productImage) {
         const imgstr = `http://localhost:5000/${productData.productImage.replace(
           /\\/g,
@@ -72,8 +83,19 @@ function Products() {
         )}`;
         setProductImage(imgstr);
       }
+  
+      // Set additional fields for specific categories
+      if (productData.category?.name === "Clothing") {
+        setSize(productData.size || "");
+        setGender(productData.gender || "");
+      } else if (productData.category?.name === "Electronics") {
+        setWarranty(productData.warranty || "");
+      } else if (productData.category?.name === "Furniture") {
+        setMaterial(productData.material || "");
+      }
     }
   }, [productData]);
+  
 
   const handleDelete = async (e) => {
     e.preventDefault();
@@ -108,21 +130,26 @@ function Products() {
       formData.append("quantity", quantity);
       formData.append("countInStock", stock);
       formData.append("price", price);
-
-      // for debugging
-      // for (const pair of formData.entries()) {
-      //   console.log(`${pair[0]}: ${pair[1]}`);
-      // }
-
+  
+      // Append additional fields based on category
+      if (category === "Clothing") {
+        formData.append("size", size);
+        formData.append("gender", gender);
+      } else if (category === "Electronics") {
+        formData.append("warranty", warranty);
+      } else if (category === "Furniture") {
+        formData.append("material", material);
+      }
+  
       const data = await updateProduct({
         productId: params._id,
         formData,
       });
-
+  
       if (data.error) {
         addToast("error", "Product update failed!");
       } else {
-        addToast("success", `${name} product is successfully Updated 👍🏻`);
+        addToast("success", `${name} product is successfully updated 👍🏻`);
         navigate("/admin/allproductslist");
       }
     } catch (error) {
@@ -130,6 +157,7 @@ function Products() {
       addToast("error", error.data.message);
     }
   };
+  
 
   return (
     <div className="p-4 sm:p-8 md:ml-16 bg-[#292B4B] overflow-y-auto">
@@ -336,6 +364,81 @@ function Products() {
                 </option>
               ))}
             </select>
+          </div>
+          <div className="bg-[#1B1C30] text-white p-4 sm:p-6 rounded-lg shadow">
+            {category === "Clothing" && (
+              <>
+                <h2 className="text-lg md:text-xl font-semibold mb-4">
+                  Clothing Details
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block">Size</label>
+                    <input
+                      type="text"
+                      value={size}
+                      onChange={(e) => setSize(e.target.value)}
+                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
+                      placeholder="Enter size"
+                    />
+                  </div>
+                  <div>
+                    <label className="block">Gender</label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Unisex">Unisex</option>
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {category === "Electronics" && (
+              <>
+                <h2 className="text-lg md:text-xl font-semibold mb-4">
+                  Electronics Details
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block">Warranty (in years)</label>
+                    <input
+                      type="number"
+                      value={warranty}
+                      onChange={(e) => setWarranty(e.target.value)}
+                      onWheel={(e) => e.target.blur()}
+                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
+                      placeholder="Enter warranty period"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {category === "Furniture" && (
+              <>
+                <h2 className="text-lg md:text-xl font-semibold mb-4">
+                  Furniture Details
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block">Material</label>
+                    <input
+                      type="text"
+                      value={material}
+                      onChange={(e) => setMaterial(e.target.value)}
+                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
+                      placeholder="Enter material type"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </form>

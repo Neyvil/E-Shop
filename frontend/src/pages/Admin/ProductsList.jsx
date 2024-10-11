@@ -17,6 +17,11 @@ function Products() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
   const [category, setCategory] = useState("None");
+  const [size, setSize] = useState(""); // For Clothing
+  const [gender, setGender] = useState(""); // For Clothing
+  const [warranty, setWarranty] = useState(""); // For Electronics
+  const [material, setMaterial] = useState(""); // For Furniture
+
   const [brand, setBrand] = useState("");
   const [quantity, setQuantity] = useState(0);
   const [stock, setStock] = useState(0);
@@ -54,10 +59,19 @@ function Products() {
     formdata.append("quantity", quantity);
     formdata.append("price", price);
     formdata.append("countInStock", stock);
-    console.log(formdata);
+
+    // Append additional fields conditionally based on category
+    if (category === "clothingCategoryId") {
+      formdata.append("size", size.toUpperCase());
+      formdata.append("gender", gender.toLowerCase());
+    } else if (category === "electronicsCategoryId") {
+      formdata.append("warranty", warranty);
+    } else if (category === "furnitureCategoryId") {
+      formdata.append("material", material);
+    }
+
     try {
       const res = await createProduct(formdata).unwrap();
-      console.log("Response:", res);
       if (!res) {
         console.error(res.data.error);
         addToast("error", "Product creation failed!");
@@ -77,12 +91,12 @@ function Products() {
       className="p-4 sm:p-8 md:ml-16 bg-[#292B4B] overflow-y-auto"
     >
       {isAdding ? (
-              <div className=" absolute z-50 flex justify-center items-center ">
-                <Loader />
-              </div>
-            ) : (
-              ""
-            )}
+        <div className=" absolute z-50 flex justify-center items-center ">
+          <Loader />
+        </div>
+      ) : (
+        ""
+      )}
       <div className="relative m-16 ">
         <AdminMenu />
       </div>
@@ -120,7 +134,6 @@ function Products() {
                 d="M1 5h12m0 0L9 1m4 4L9 9"
               />
             </svg>
-            
           </button>
         </div>
       </div>
@@ -240,31 +253,116 @@ function Products() {
               </label>
             </div>
           </div>
-          <div className="bg-[#1B1C30] text-white p-4 sm:p-6 rounded-lg shadow">
-            <h2 className="text-lg md:text-xl font-semibold mb-4">Category</h2>
-            <select
-              id="Category"
-              name="category"
-              value={category} // Bind category value to state
-              onChange={(e) => setCategory(e.target.value)}
-              className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black custom-select"
-            >
-              <option
-                value="None"
-                className="bg-[#292B4B] text-sm text-white w-10 h-6 border-b-2 rounded"
+
+          <div className="space-y-4 text-white">
+            <div className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow">
+              <h2 className="text-lg md:text-xl font-semibold mb-4">
+                Category
+              </h2>
+              <select
+                id="Category"
+                name="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black custom-select"
               >
-                None
-              </option>
-              {categories?.map((c) => (
-                <option
-                  key={c._id}
-                  value={c._id}
-                  className="bg-[#292B4B] text-sm text-white w-10 h-6 border-b-2 rounded"
-                >
-                  {c.name}
-                </option>
-              ))}
-            </select>
+                <option value="None">None</option>
+                {categories?.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {categories?.map(
+              (c) =>
+                category === c._id &&
+                c.name === "Clothing" && (
+                  <div
+                    key={c._id}
+                    className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow"
+                  >
+                    <label className="block text-white">Size</label>
+                    <input
+                      type="text"
+                      value={size}
+                      onChange={(e) => setSize(e.target.value)}
+                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl"
+                      placeholder="Enter size (S, M, L, etc.)"
+                    />
+                    <label className="block">Gender</label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Unisex">Unisex</option>
+                    </select>
+                  </div>
+                )
+            )}
+
+            {categories?.map(
+              (c) =>
+                category === c._id &&
+                c.name === "Electronic" && (
+                  <div
+                    key={c._id}
+                    className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow"
+                  >
+                    <label className="block text-white">Size</label>
+                    <input
+                      type="text"
+                      value={size}
+                      onChange={(e) => setSize(e.target.value)}
+                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl"
+                      placeholder="Enter size (S, M, L, etc.)"
+                    />
+                    <label className="block">Gender</label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Unisex">Unisex</option>
+                    </select>
+                  </div>
+                )
+            )}
+
+
+            {category === "electronicsCategoryId" && (
+              <div className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow">
+                <label className="block text-white">Warranty</label>
+                <input
+                  type="text"
+                  value={warranty}
+                  onChange={(e) => setWarranty(e.target.value)}
+                  className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl"
+                  placeholder="Enter warranty (e.g., 1 year, 2 years)"
+                />
+              </div>
+            )}
+
+            {category === "furnitureCategoryId" && (
+              <div className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow">
+                <label className="block text-white">Material</label>
+                <input
+                  type="text"
+                  value={material}
+                  onChange={(e) => setMaterial(e.target.value)}
+                  className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl"
+                  placeholder="Enter material (e.g., Wood, Metal)"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
