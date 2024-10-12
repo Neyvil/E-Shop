@@ -27,7 +27,7 @@ const productSchema = mongoose.Schema(
     numReviews: { type: Number, required: true, default: 0 },
     price: { type: Number, required: true, default: 0 },
     countInStock: { type: Number, required: true, default: 0 },
-    // Specific fields for different product types based on Category type
+    
     clothingAttributes: {
       gender: {
         type: String,
@@ -39,6 +39,12 @@ const productSchema = mongoose.Schema(
       size: {
         type: String,
         enum: ["XS", "S", "M", "L", "XL", "XXL"],
+        required: function () {
+          return this.category.name=== "clothing";
+        },
+      },
+      color: {
+        type: String,
         required: function () {
           return this.category.name=== "clothing";
         },

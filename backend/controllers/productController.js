@@ -1,70 +1,100 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
 import Category from "../models/categoryModel.js";
-import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join, basename, dirname as getDirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const addProduct = async (req, res) => {
   try {
     const {
       name,
-      category, // category includes name
+      categoryId,
       description,
       brand,
-      quantity,
       price,
       countInStock,
       gender,
       size,
       color,
-      material,
       warranty,
+      material,
     } = req.body;
 
     if (
       !name ||
       !description ||
       !price ||
-      !category ||
-      !quantity ||
+      !categoryId ||
       !brand ||
-      !countInStock
+      !countInStock ||
+      !req.file
     ) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res
+        .status(400)
+        .json({ error: "All fields including product image are required" });
     }
 
     // Access the uploaded file from req.file
-    const productImage = req.file ? req.file.path : undefined;
+    const productImage = req.file.path;
 
-    const categoryData = await Category.findById(category);
-    if (!categoryData) {
+    // Find the category and its ancestors
+    const category = await Category.findById(categoryId);
+    if (!category) {
       return res.status(400).json({ error: "Category not found" });
     }
 
-    // Create a new product object based on category name
+    // Function to get all ancestor categories
+    const getAncestorCategories = async (cat) => {
+      const ancestors = [];
+      let currentCat = cat;
+      while (currentCat.parentCategory) {
+        currentCat = await Category.findById(currentCat.parentCategory);
+        ancestors.push(currentCat);
+      }
+      return ancestors;
+    };
+
+    const ancestorCategories = await getAncestorCategories(category);
+    const allCategories = [category, ...ancestorCategories];
+
+    // Create a new product object
     let productData = {
       name,
-      category,
+      category: categoryId,
       description,
       brand,
-      quantity,
       price,
       productImage,
       countInStock,
     };
 
-    // Add specific attributes based on the category name
-    if (categoryData.name === "clothing") {
+    // Check if any of the categories (including ancestors) is "Clothing"
+    const isClothing = allCategories.some(
+      (cat) => cat.name.toLowerCase() === "clothing"
+    );
+    const isElectronics = allCategories.some(
+      (cat) => cat.name.toLowerCase() === "electronics"
+    );
+    const isFurniture = allCategories.some(
+      (cat) => cat.name.toLowerCase() === "furniture"
+    );
+
+    // Add specific attributes based on the category
+    if (isClothing) {
       productData.clothingAttributes = {
         gender,
         size,
         color,
       };
-    } else if (categoryData.name === "electronics") {
+    } else if (isElectronics) {
       productData.electronicsAttributes = {
         warranty,
       };
-    } else if (categoryData.name === "furniture") {
+    } else if (isFurniture) {
       productData.furnitureAttributes = {
         material,
       };
@@ -84,23 +114,20 @@ const addProduct = async (req, res) => {
     res.status(500).json({ error: "Server error, could not create product" });
   }
 };
-
-
 const updateProduct = asyncHandler(async (req, res) => {
   try {
     const {
       name,
       description,
       price,
-      category,
-      quantity,
+      categoryId,
       brand,
       countInStock,
       gender,
       size,
       color,
-      material,
       warranty,
+      material,
     } = req.body;
 
     const product = await Product.findById(req.params.id);
@@ -112,72 +139,171 @@ const updateProduct = asyncHandler(async (req, res) => {
     // Handle product image replacement
     if (req.file) {
       if (product.productImage) {
-        const ImagePath = path.join("uploads/products", product.productImage);
-        const existingImagePath = ImagePath.replace("uploads\\products\\", "");
+        const imagePath = path.join("uploads/products", product.productImage);
+        const existingImagePath = imagePath.replace("uploads\\products\\", "");
         fs.unlink(existingImagePath, (err) => {
           if (err) {
             console.error("Failed to delete existing image:", err);
+          } else {
+            console.log("Successfully deleted existing image");
           }
         });
       }
-
       product.productImage = req.file.path;
+      console.log("New Image Path:", req.file.path);
     }
 
     // Update basic fields
-    product.name = name;
-    product.description = description;
-    product.price = price;
-    product.category = category;
-    product.quantity = quantity;
-    product.brand = brand;
-    product.countInStock = countInStock;
+    Object.assign(product, {
+      name,
+      description,
+      price,
+      brand,
+      countInStock,
+    });
 
-    const categoryData = await Category.findById(category);
-    if (!categoryData) {
-      return res.status(400).json({ error: "Category not found" });
-    }
+    // Function to get all ancestor categories
+    const getAncestorCategories = async (catId) => {
+      const ancestors = [];
+      let currentCat = await Category.findById(catId);
+      while (currentCat && currentCat.parentCategory) {
+        currentCat = await Category.findById(currentCat.parentCategory);
+        if (currentCat) ancestors.push(currentCat);
+      }
+      return ancestors;
+    };
 
-    // Update specific attributes based on the category name
-    if (categoryData.name === "Clothing") {
-      product.clothingAttributes = { gender, size, color };
-    } else if (categoryData.name === "Electronics") {
-      product.electronicsAttributes = { warranty };
-    } else if (categoryData.name === "Furniture") {
-      product.furnitureAttributes = { material };
+    // Update category and specific attributes
+    if (categoryId && categoryId !== product.category.toString()) {
+      const newCategory = await Category.findById(categoryId);
+      if (!newCategory) {
+        return res.status(400).json({ error: "Category not found" });
+      }
+      product.category = categoryId;
+
+      const ancestorCategories = await getAncestorCategories(categoryId);
+      const allCategories = [newCategory, ...ancestorCategories];
+
+      // Reset all attribute fields
+      product.clothingAttributes = undefined;
+      product.electronicsAttributes = undefined;
+      product.furnitureAttributes = undefined;
+
+      const isClothing = allCategories.some(
+        (cat) => cat.name.toLowerCase() === "clothing"
+      );
+      const isElectronics = allCategories.some(
+        (cat) => cat.name.toLowerCase() === "electronics"
+      );
+      const isFurniture = allCategories.some(
+        (cat) => cat.name.toLowerCase() === "furniture"
+      );
+
+      if (isClothing) {
+        product.clothingAttributes = { gender, size, color };
+      } else if (isElectronics) {
+        product.electronicsAttributes = { warranty };
+      } else if (isFurniture) {
+        product.furnitureAttributes = { material };
+      }
+    } else {
+      // If category hasn't changed, just update the relevant attributes
+      const ancestorCategories = await getAncestorCategories(product.category);
+      const allCategories = [
+        await Category.findById(product.category),
+        ...ancestorCategories,
+      ];
+
+      const isClothing = allCategories.some(
+        (cat) => cat.name.toLowerCase() === "clothing"
+      );
+      const isElectronics = allCategories.some(
+        (cat) => cat.name.toLowerCase() === "electronics"
+      );
+      const isFurniture = allCategories.some(
+        (cat) => cat.name.toLowerCase() === "furniture"
+      );
+
+      if (isClothing) {
+        product.clothingAttributes = { gender, size, color };
+      } else if (isElectronics) {
+        product.electronicsAttributes = { warranty };
+      } else if (isFurniture) {
+        product.furnitureAttributes = { material };
+      }
     }
 
     const updatedProduct = await product.save();
-    res.status(201).json({ message: "Product successfully updated", updatedProduct });
+    res.status(200).json({
+      message: "Product successfully updated",
+      product: updatedProduct,
+    });
   } catch (error) {
     console.error("Error:", error);
-    res.status(400).json({ message: "Product update failed", error: error.message });
+    res
+      .status(400)
+      .json({ message: "Product update failed", error: error.message });
   }
 });
-
-
-const fetchAllProducts = asyncHandler(async (req, res) => {
-  try {
-    const products = await Product.find({})
-      .populate("category")
-      .limit(100)
-      .sort({ createdAt: -1 });
-    res.json(products);
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ error: "Internal server Error!!" });
-  }
-});
-
-
-
+// ******* Heavy mistake done here in path so i carefully commented every step ***** remember this
 const removeProduct = asyncHandler(async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    res.json(product);
+    // Find the product by ID
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Check if product has an associated image to delete
+    if (product.productImage) {
+      const productImagePath = product.productImage; // 'uploads\\products\\productImage-XXXX.jpg'
+
+      // Separate the folder path and the file name
+      const imageFileName = basename(productImagePath); // 'productImage-XXXX.jpg'
+
+      // Construct the absolute path for the 'uploads/products' folder outside of 'backend'
+      const absoluteFolderPath = join(
+        __dirname,
+        "..",
+        "..",
+        "uploads",
+        "products"
+      ); // D:\COLLEGE NABAJYOTI\E-Shop\uploads\products
+      const absoluteImagePath = join(absoluteFolderPath, imageFileName); // Absolute path to the image
+
+      // Check if the folder exists
+      if (fs.existsSync(absoluteFolderPath)) {
+        console.log("Folder exists:", absoluteFolderPath);
+
+        // Check if the image file exists before deleting
+        if (fs.existsSync(absoluteImagePath)) {
+          console.log(
+            "Image file exists, attempting to delete:",
+            absoluteImagePath
+          );
+
+          // Delete the image file
+          fs.unlink(absoluteImagePath, (err) => {
+            if (err) {
+              console.error("Failed to delete image:", err);
+            } else {
+              console.log("Successfully deleted image:", absoluteImagePath);
+            }
+          });
+        } else {
+          console.error("Image file does not exist:", absoluteImagePath);
+        }
+      } else {
+        console.error("Folder does not exist:", absoluteFolderPath);
+      }
+    }
+
+    // Remove the product from the database
+    await Product.deleteOne({ _id: req.params.id });
+    res.json({ message: "Product successfully deleted", product });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: "error during Product deletion !!" });
+    res.status(500).json({ error: "Error during Product deletion" });
   }
 });
 
@@ -191,8 +317,25 @@ const fetchProducts = asyncHandler(async (req, res) => {
 
     const count = await Product.countDocuments({ ...keyword });
     const products = await Product.find({ ...keyword })
+      .populate({
+        path: "category",
+        populate: {
+          path: "subcategories",
+          populate: {
+            path: "subcategories",
+            populate: {
+              path: "subcategories",
+            },
+          },
+        },
+      })
       .limit(pageSize)
-      .skip(pageSize * (page - 1));
+      .skip(pageSize * (page - 1))
+      .sort({ createdAt: -1 });
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found" });
+    }
 
     res.json({
       products,
@@ -202,17 +345,36 @@ const fetchProducts = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Server Error!!" });
+    res.status(500).json({ error: "Server Error" });
   }
 });
 
 const fetchProductById = asyncHandler(async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).populate({
+      path: "category",
+      populate: {
+        path: "subcategories",
+        populate: {
+          path: "subcategories",
+          populate: {
+            path: "subcategories",
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
     res.json(product);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: "Fetching Error" });
+    if (error.kind === "ObjectId") {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    res.status(500).json({ error: "Server Error" });
   }
 });
 
@@ -221,72 +383,84 @@ const addProductReview = asyncHandler(async (req, res) => {
     const { rating, comment } = req.body;
     const product = await Product.findById(req.params.id);
 
-    if (product) {
-      const alreadyReviewed = product.reviews.find(
-        (r) => r.user.toString() === req.user._id.toString()
-      );
-
-      if (alreadyReviewed) {
-        res.status(400);
-        throw new Error("Product already reviewed");
-      }
-
-      const review = {
-        name: req.user.username,
-        rating: Number(rating),
-        comment,
-        user: req.user._id,
-      };
-
-      product.reviews.push(review);
-
-      product.numReviews = product.reviews.length;
-
-      product.rating =
-        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
-        product.reviews.length;
-
-      await product.save();
-      res.status(201).json({ message: "Review added" });
-    } else {
-      res.status(404);
-      throw new Error("Product not found");
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
     }
+
+    const alreadyReviewed = product.reviews.find(
+      (r) => r.user.toString() === req.user._id.toString()
+    );
+
+    if (alreadyReviewed) {
+      return res.status(400).json({ error: "Product already reviewed" });
+    }
+
+    const review = {
+      name: req.user.username,
+      rating: Number(rating),
+      comment,
+      user: req.user._id,
+    };
+
+    product.reviews.push(review);
+    product.numReviews = product.reviews.length;
+    product.rating =
+      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      product.reviews.length;
+
+    await product.save();
+    res.status(201).json({ message: "Review added", review });
   } catch (error) {
     console.error(error);
-    res.status(400).json(error.message);
+    res.status(400).json({ error: error.message });
   }
 });
 
-const fetchTopProduct = asyncHandler(async (req, res) => {
+const fetchTopProducts = asyncHandler(async (req, res) => {
   try {
-    const product = await Product.find({}).sort({ rating: -1 }).limit(4);
-    res.json(product);
+    const products = await Product.find({})
+      .sort({ rating: -1 })
+      .limit(4)
+      .populate("category");
+    res.json(products);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ message: "Fetching Problem" });
+    res.status(500).json({ error: "Fetching Problem" });
   }
 });
 
-const fetchNewProduct = asyncHandler(async (req, res) => {
+const fetchNewProducts = asyncHandler(async (req, res) => {
   try {
-    const product = await Product.find({}).sort({ _id: -1 }).limit(4);
-    res.json(product);
+    const products = await Product.find({})
+      .sort({ createdAt: -1 })
+      .limit(4)
+      .populate("category");
+    res.json(products);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: "Fetching problem!" });
+    res.status(500).json({ error: "Fetching problem" });
   }
 });
 
 const filterProducts = asyncHandler(async (req, res) => {
   try {
-    const { checked, radio } = req.body;
+    const { categories, priceRange, gender } = req.body;
+    let query = {};
 
-    let args = {};
-    if (checked.length > 0) args.category = checked;
-    if (radio.length) args.price = { $gte: radio[0], $lte: radio[1] };
+    if (categories && categories.length > 0) {
+      const categoryIds = await getAllSubcategories(categories);
+      query.category = { $in: categoryIds };
+    }
 
-    const products = await Product.find(args).populate("category");
+    if (priceRange && priceRange.length === 2) {
+      query.price = { $gte: priceRange[0], $lte: priceRange[1] };
+    }
+
+    if (gender) {
+      query["clothingAttributes.gender"] = gender;
+    }
+
+    const products = await Product.find(query).populate("category");
     res.json(products);
   } catch (error) {
     console.error(error);
@@ -294,16 +468,51 @@ const filterProducts = asyncHandler(async (req, res) => {
   }
 });
 
+const fetchAllProducts = asyncHandler(async (req, res) => {
+  try {
+    const products = await Product.find({})
+      .populate("category")
+      .limit(100)
+      .sort({ createdAt: -1 });
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server Error" });
+  }
+});
+
+// Helper function to get all subcategories recursively (imp)
+const getAllSubcategories = async (categoryIds) => {
+  const allCategories = new Set(categoryIds.map((id) => id.toString()));
+  const queue = [...categoryIds];
+
+  while (queue.length) {
+    const categoryId = queue.shift();
+    const category = await Category.findById(categoryId);
+
+    if (category && category.subcategories.length > 0) {
+      for (const subCategoryId of category.subcategories) {
+        const subCategoryIdString = subCategoryId.toString();
+        if (!allCategories.has(subCategoryIdString)) {
+          allCategories.add(subCategoryIdString);
+          queue.push(subCategoryId); /*  */
+        }
+      }
+    }
+  }
+
+  return Array.from(allCategories);
+};
 
 export {
-  fetchNewProduct,
-  addProduct,
   updateProduct,
   removeProduct,
   fetchProducts,
   fetchProductById,
   addProductReview,
-  fetchTopProduct,
+  fetchTopProducts,
+  fetchNewProducts,
   filterProducts,
   fetchAllProducts,
+  addProduct,
 };

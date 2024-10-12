@@ -6,19 +6,69 @@ import {
   useFetchCategoriesQuery,
 } from "../../redux/api/categoryApisSlice";
 import { useToast } from "../../components/Toast/ToastProvider";
-import { Trash, FilePenLine } from "lucide-react";
+import { Trash, FilePenLine, ChevronDown, ChevronUp } from "lucide-react";
 import AdminMenu from "./AdminMenu";
 
 const CategoryList = () => {
   const { data: categories } = useFetchCategoriesQuery();
   const [name, setName] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [updatingName, setUpdatingName] = useState("");
+  const [parentCategory, setParentCategory] = useState("");
+  const [gender, setGender] = useState("");
+  const [updatingCategory, setUpdatingCategory] = useState(null);
+  const [expandedCategories, setExpandedCategories] = useState({});
+  const [flattenedCategories, setFlattenedCategories] = useState([]);
   const addToast = useToast();
 
   const [createCategory] = useCreateCategoryMutation();
   const [updateCategory] = useUpdateCategoryMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
+
+  useEffect(() => {
+    if (categories) {
+      const flattened = flattenCategories(categories);
+      setFlattenedCategories(flattened);
+    }
+  }, [categories]);
+
+  // MOST NEW THING I EVER DO NESTING CATEGORY SERCHING
+  const flattenCategories = (cats, level = 0, prefix = "") => {
+    return cats?.reduce((acc, cat) => {
+      const indentedName = prefix + "—".repeat(level) + cat.name;
+      acc.push({ _id: cat._id, name: indentedName });
+      if (cat.subcategories?.length) {
+        acc = acc.concat(flattenCategories(cat.subcategories, level + 1, prefix + "—".repeat(level)));
+      }
+      return acc;
+    }, []) || [];
+  };
+
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+    if (!name) {
+      addToast("error", "Category Name is required");
+      return;
+    }
+
+    try {
+      const result = await createCategory({
+        name,
+        parentCategory: parentCategory || null,
+        gender: gender || null,
+      }).unwrap();
+
+      if (result.error) {
+        addToast("error", result.error);
+      } else {
+        setName("");
+        setParentCategory("");
+        setGender("");
+        addToast("success", `${result.name} is created`);
+      }
+    } catch (error) {
+      console.error(error);
+      addToast("error", "Creating category failed");
+    }
+  };
 
   const deleteCategoryHandler = async (id) => {
     try {
@@ -26,161 +76,140 @@ const CategoryList = () => {
       if (result.error) {
         addToast("error", result.error);
       } else {
-        addToast("success", `${result.categoryDeleted.name} is deleted.`);
+        addToast("success", `${result.category.name} is deleted.`);
       }
     } catch (error) {
       addToast("error", error.message);
     }
   };
 
-  const userClickHandler = async (category) => {
-    setSelectedCategory(category);
-    setUpdatingName(category.name);
-  };
-
-  const updateHandler = async (e) => {
+  const updateCategoryHandler = async (e) => {
     e.preventDefault();
-
-    if (!updatingName) {
-      addToast("error", "Category name required");
+    if (!name || !updatingCategory) {
+      addToast("error", "Category Name is required");
       return;
     }
 
     try {
       const result = await updateCategory({
-        categoryId: selectedCategory._id,
-        updateCategory: {
-          name: updatingName,
-        },
+        categoryId: updatingCategory._id,
+        name,
+        parentCategory: parentCategory || null,
+        gender: gender || null,
       }).unwrap();
 
       if (result.error) {
         addToast("error", result.error);
       } else {
-        setSelectedCategory(null);
         setName("");
+        setParentCategory("");
+        setGender("");
+        setUpdatingCategory(null);
         addToast("success", `${result.name} is updated`);
       }
     } catch (error) {
       console.error(error);
-      addToast("error", "Updating Category failed");
+      addToast("error", "Updating category failed");
     }
   };
 
-  const handleCreateCategory = async (e) => {
-    e.preventDefault();
+  const toggleExpandCategory = (categoryId) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
+  };
 
-    if (!name) {
-      addToast("error", "Category Name is required ");
-      return;
-    }
-    try {
-      const result = await createCategory({ name }).unwrap();
-      if (result.error) {
-        addToast("error", result.error);
-      } else {
-        setName("");
-        addToast("success", `${result.name} is created`);
-      }
-    } catch (error) {
-      console.error(error);
-      addToast("error", "Creating category failed, try again");
-    }
+  const renderCategories = (categoryList, level = 0) => {
+    return categoryList?.map((category) => (
+      <li
+        key={category._id}
+        className={`p-4 bg-[#24253C] rounded-lg text-white flex flex-col ${
+          level > 0 ? `ml-2 sm:ml-4 md:ml-6 mt-2` : ""
+        }`}
+      >
+        <div className="flex justify-between items-center">
+          <span className="text-sm sm:text-base">{category.name}</span>
+          <div className="flex space-x-2 sm:space-x-4">
+            <button onClick={() => setUpdatingCategory(category)}>
+              <FilePenLine color="#7303c0" size={16} />
+            </button>
+            <button onClick={() => deleteCategoryHandler(category._id)}>
+              <Trash color="#ff0066" size={16} />
+            </button>
+            {category.subcategories?.length > 0 && (
+              <button onClick={() => toggleExpandCategory(category._id)}>
+                {expandedCategories[category._id] ? (
+                  <ChevronUp color="#ff0066" size={16} />
+                ) : (
+                  <ChevronDown color="#ff0066" size={16} />
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+        {expandedCategories[category._id] && category.subcategories?.length > 0 && (
+          <ul className="mt-2">
+            {renderCategories(category.subcategories, level + 1)}
+          </ul>
+        )}
+      </li>
+    ));
   };
 
   return (
-    <div className="h-screen flex justify-center items-center bg-[#292B4B] overflow-y-auto">
-      <div className="relative m-16 z-50 ">
-        <AdminMenu />
-      </div>
-      <section className="w-[85%] bg-[#1B1C30] shadow-xl p-[2rem] flex flex-col items-center text-center rounded-xl">
-        <h1 className="text-4xl font-serif font-bold text-white lg:mt-0 mb-8">
-          Manage{" "}
-          <span className="text-gradient bg-gradient-to-r from-[#a445b2] via-[#d41872] to-[#ff0066] bg-clip-text text-transparent">
-            Categories
-          </span>
+    <div className="min-h-screen flex flex-col items-center bg-[#292B4B]">
+      <AdminMenu />
+      <div className="w-full max-w-4xl mx-auto mt-8 sm:mt-16 bg-[#1B1C30] p-4 sm:p-8 rounded-lg shadow-lg">
+        <h1 className="text-2xl sm:text-4xl font-bold text-white text-center mb-4 sm:mb-8">
+          Manage Categories
         </h1>
-        <form className="w-full lg:w-[60%] flex flex-col md:flex-row text-xl font-serif justify-around items-center space-y-4 md:space-y-0">
+        <form
+          onSubmit={updatingCategory ? updateCategoryHandler : handleCreateCategory}
+          className="flex flex-col space-y-4"
+        >
           <input
             type="text"
-            placeholder="Write Category Name"
-            className="pl-8 border border-[#292B4B] rounded-full text-slate-300 w-full md:w-[78%] h-14 bg-[#1B1C30] focus:bg-white focus:outline-none focus:text-black focus:border-[#fff] transition-all duration-300 ease-in-out"
-            value={selectedCategory ? updatingName : name}
-            onChange={(e) => {
-              selectedCategory
-                ? setUpdatingName(e.target.value)
-                : setName(e.target.value);
-            }}
+            placeholder="Category Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg bg-[#2C2F48] text-white placeholder-gray-400 text-sm sm:text-base"
           />
-          <button
-            onClick={selectedCategory ? updateHandler : handleCreateCategory}
-            className="w-[15%] transform hover:scale-105 inline-flex items-center px-4 py-2 text-md font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:bg-gradient-to-l hover:shadow-lg transition-all duration-300"
+          <select
+            value={parentCategory}
+            onChange={(e) => setParentCategory(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg bg-[#2C2F48] text-white text-sm sm:text-base"
           >
-            {selectedCategory ? "Update" : "Submit"}
+            <option value="">Select Parent Category (optional)</option>
+            {flattenedCategories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg bg-[#2C2F48] text-white text-sm sm:text-base"
+          >
+            <option value="">Select Gender (optional)</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="unisex">Unisex</option>
+          </select>
+          <button
+            type="submit"
+            className="self-start px-4 sm:px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:bg-gradient-to-l transition-all text-sm sm:text-base"
+          >
+            {updatingCategory ? "Update Category" : "Create Category"}
           </button>
         </form>
-        <hr className="w-full m-5 border rounded-full border-[#292B4B]" />
 
-        <div className="w-full flex justify-center mt-4 max-h-[40vh] lg:max-h-[60vh] overflow-auto">
-          <table className="w-[90%] border-collapse">
-            <thead className="sticky top-0 bg-[#2A2C4A] z-10">
-              <tr>
-                <th className="text-white font-bold p-4 font-serif text-xl">
-                  ID
-                </th>
-                <th className="text-white font-bold p-4 font-serif text-xl">
-                  Categories
-                </th>
-                <th className="text-white font-bold p-4 font-serif text-xl">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories && categories.length > 0 ? (
-                categories.map((category, index) => (
-                  <tr
-                    key={category._id}
-                    className={`bg-[#24253C] ${
-                      index % 2 === 0 ? "bg-opacity-75" : "bg-opacity-50"
-                    } hover:bg-opacity-90 transition-all duration-200 ease-in-out`}
-                  >
-                    <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
-                      {category._id ? category._id.slice(-8) : category._id}
-                    </td>
-                    <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
-                      {category.name}
-                    </td>
-                    <td className="border-b-2 border-solid border-[#7303c0] text-white font-sans p-4 text-center align-middle">
-                      <div className="w-full flex justify-center space-x-4">
-                        <button
-                          onClick={() => deleteCategoryHandler(category._id)}
-                          className="hover:scale-110 transition-transform duration-200"
-                        >
-                          <Trash color="#7303c0" size={30} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            userClickHandler(category);
-                          }}
-                          className="hover:scale-110 transition-transform duration-200"
-                        >
-                          <FilePenLine color="#7303c0" size={30} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <p className=" text-white text-xl m-4 text-center">
-                  {" "}
-                  No categories yet!!
-                </p>
-              )}
-            </tbody>
-          </table>
+        <div className="mt-6 sm:mt-8">
+          <h2 className="text-xl sm:text-3xl font-semibold text-white mb-4">Categories List</h2>
+          <ul className="space-y-4">{renderCategories(categories)}</ul>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

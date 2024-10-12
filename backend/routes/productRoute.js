@@ -12,9 +12,9 @@ import {
   fetchProducts,
   fetchProductById,
   addProductReview,
-  fetchTopProduct,
+  fetchTopProducts,
   filterProducts,
-  fetchNewProduct,
+  fetchNewProducts,
   fetchAllProducts,
 } from "../controllers/productController.js";
 
@@ -52,22 +52,33 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
-router
-  .route("/")
-  .get(fetchProducts)
-  .post(
-    authenticate,
-    authorizeAdmin,
-    upload.single("productImage"),
-    addProduct
-  );
+// Fetch all products (paginated)
+router.route("/").get(fetchProducts);
 
-router.route("/allproducts").get(fetchAllProducts);
-router
-  .route("/:id/reviews")
-  .post(authenticate,  checkId, addProductReview);
-router.route("/top").get(fetchTopProduct);
-router.route("/new").get(fetchNewProduct);
+// Add a new product
+router.route("/").post(
+  authenticate,
+  authorizeAdmin,
+  upload.single("productImage"),
+  addProduct
+);
+
+// Fetch all products (without pagination)
+router.route("/all").get(fetchAllProducts);
+
+// Add a review to a product
+router.route("/:id/reviews").post(authenticate, checkId, addProductReview);
+
+// Fetch top-rated products
+router.route("/top").get(fetchTopProducts);
+
+// Fetch newest products
+router.route("/new").get(fetchNewProducts);
+
+// Filter products
+router.route("/filter").post(filterProducts);
+
+// Fetch, update, or delete a specific product
 router
   .route("/:id")
   .get(fetchProductById)
@@ -77,10 +88,8 @@ router
     (req, res, next) => {
       upload.single("productImage")(req, res, (err) => {
         if (err instanceof multer.MulterError) {
-          // Handle multer-specific errors
           return res.status(400).json({ message: err.message });
         } else if (err) {
-          // Handle other errors (like file type errors)
           return res.status(400).json({ message: err.message });
         }
         next();
@@ -89,6 +98,5 @@ router
     updateProduct
   )
   .delete(authenticate, authorizeAdmin, removeProduct);
-  router.route('/filtered-products').post(filterProducts)
 
 export default router;
