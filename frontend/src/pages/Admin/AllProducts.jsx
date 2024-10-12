@@ -76,7 +76,7 @@ const AllProducts = () => {
                           >
                             Update
                           </Link>
-                          <p className="text-white text-lg font-semibold">${filteredProduct?.price}</p>
+                          <p className="text-white text-lg font-semibold"> ₹{filteredProduct?.price}</p>
                         </div>
                       </div>
                     </div>

@@ -39,16 +39,16 @@ const addProduct = async (req, res) => {
         .json({ error: "All fields including product image are required" });
     }
 
-    // Access the uploaded file from req.file
+    
     const productImage = req.file.path;
 
-    // Find the category and its ancestors
+    
     const category = await Category.findById(categoryId);
     if (!category) {
       return res.status(400).json({ error: "Category not found" });
     }
 
-    // Function to get all ancestor categories
+    
     const getAncestorCategories = async (cat) => {
       const ancestors = [];
       let currentCat = cat;
@@ -62,7 +62,7 @@ const addProduct = async (req, res) => {
     const ancestorCategories = await getAncestorCategories(category);
     const allCategories = [category, ...ancestorCategories];
 
-    // Create a new product object
+    
     let productData = {
       name,
       category: categoryId,
@@ -73,7 +73,7 @@ const addProduct = async (req, res) => {
       countInStock,
     };
 
-    // Check if any of the categories (including ancestors) is "Clothing"
+   
     const isClothing = allCategories.some(
       (cat) => cat.name.toLowerCase() === "clothing"
     );
@@ -84,7 +84,7 @@ const addProduct = async (req, res) => {
       (cat) => cat.name.toLowerCase() === "furniture"
     );
 
-    // Add specific attributes based on the category
+    
     if (isClothing) {
       productData.clothingAttributes = {
         gender,
@@ -103,7 +103,7 @@ const addProduct = async (req, res) => {
 
     const product = new Product(productData);
 
-    // Save the product to the database
+    
     await product.save();
 
     res.status(201).json({
@@ -115,6 +115,7 @@ const addProduct = async (req, res) => {
     res.status(500).json({ error: "Server error, could not create product" });
   }
 };
+
 const updateProduct = asyncHandler(async (req, res) => {
   try {
     const {
@@ -139,12 +140,12 @@ const updateProduct = asyncHandler(async (req, res) => {
 
     // Handle product image replacement
     if (req.file) {
-      // Check if there is an existing image and delete it
+     
       if (product.productImage) {
-        // Construct the path to the existing image
+       
         const absoluteImagePath = path.join(__dirname, "..", "..", product.productImage);
 
-        // Delete the existing image
+        
         if (fs.existsSync(absoluteImagePath)) {
           fs.unlink(absoluteImagePath, (err) => {
             if (err) {
@@ -157,13 +158,12 @@ const updateProduct = asyncHandler(async (req, res) => {
           console.log("Image file does not exist:", absoluteImagePath);
         }
       }
-
-      // Save the new image path
-      product.productImage = req.file.path; // Store the new image path from req.file
+ 
+      product.productImage = req.file.path; 
       console.log("New Image Path:", req.file.path);
     }
 
-    // Update basic fields
+    
     Object.assign(product, {
       name,
       description,
@@ -172,7 +172,7 @@ const updateProduct = asyncHandler(async (req, res) => {
       countInStock,
     });
 
-    // Function to get all ancestor categories
+    
     const getAncestorCategories = async (catId) => {
       const ancestors = [];
       let currentCat = await Category.findById(catId);
@@ -183,7 +183,7 @@ const updateProduct = asyncHandler(async (req, res) => {
       return ancestors;
     };
 
-    // Update category and specific attributes
+    
     if (categoryId && categoryId !== product.category.toString()) {
       const newCategory = await Category.findById(categoryId);
       if (!newCategory) {
@@ -194,7 +194,7 @@ const updateProduct = asyncHandler(async (req, res) => {
       const ancestorCategories = await getAncestorCategories(categoryId);
       const allCategories = [newCategory, ...ancestorCategories];
 
-      // Reset all attribute fields
+      
       product.clothingAttributes = undefined;
       product.electronicsAttributes = undefined;
       product.furnitureAttributes = undefined;
@@ -217,7 +217,7 @@ const updateProduct = asyncHandler(async (req, res) => {
         product.furnitureAttributes = { material };
       }
     } else {
-      // If category hasn't changed, just update the relevant attributes
+      
       const ancestorCategories = await getAncestorCategories(product.category);
       const allCategories = [
         await Category.findById(product.category),

@@ -1,373 +1,398 @@
-import React from "react";
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCreateProductMutation } from "../../redux/api/productApiSlice";
-import { useFetchCategoriesQuery } from "../../redux/api/categoryApisSlice.js";
+import { useFetchCategoriesQuery } from "../../redux/api/categoryApisSlice";
 import { useToast } from "../../components/Toast/ToastProvider";
+import { CloudUpload, ChevronDown, ChevronRight } from "lucide-react";
+import defaultProductImage from "../../image/defaultProductImage.png";
+import Loader from "../../components/Loader";
+import AdminMenu from "./AdminMenu";
 
-import { CloudUpload } from "lucide-react";
-import img from "../../image/defaultProductImage.png";
-import Loader from "../../components/Loader.jsx";
-import AdminMenu from "./AdminMenu.jsx";
+const ProductsList = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: 0,
+    category: "",
+    brand: "",
+    countInStock: 0,
+    productImage: null,
+    size: "",
+    gender: "",
+    warranty: "",
+    material: "",
+  });
 
-function Products() {
-  const [name, setName] = useState("");
-  const [image, setImage] = useState(null);
-  const [productImage, setProductImage] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
-  const [category, setCategory] = useState("None");
-  const [size, setSize] = useState(""); // For Clothing
-  const [gender, setGender] = useState(""); // For Clothing
-  const [warranty, setWarranty] = useState(""); // For Electronics
-  const [material, setMaterial] = useState(""); // For Furniture
-
-  const [brand, setBrand] = useState("");
-  const [quantity, setQuantity] = useState(0);
-  const [stock, setStock] = useState(0);
+  const [imagePreview, setImagePreview] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedCategoryPath, setSelectedCategoryPath] = useState([]);
   const navigate = useNavigate();
-
   const [createProduct, { isLoading: isAdding }] = useCreateProductMutation();
-  const { data: categories } = useFetchCategoriesQuery();
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useFetchCategoriesQuery();
   const addToast = useToast();
 
-  const addProductImage = (event) => {
-    const file = event.target.files[0];
-    setImage(file);
-    setProductImage(URL.createObjectURL(file));
+  const handleInputChange = (e) => {
+    const { name, value, type } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "number" ? parseFloat(value) : value,
+    }));
   };
 
-  const resetFields = () => {
-    setName("");
-    setImage(null);
-    setProductImage("");
-    setDescription("");
-    setPrice(0);
-    setCategory("None"); // Reset category to "None"
-    setBrand("");
-    setQuantity(0);
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, productImage: file }));
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
-  const submitHandler = async (e) => {
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      price: 0,
+      category: "",
+      brand: "",
+      countInStock: 0,
+      productImage: null,
+      size: "",
+      gender: "",
+      warranty: "",
+      material: "",
+    });
+    setImagePreview("");
+    setSelectedCategoryPath([]);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formdata = new FormData();
-    formdata.append("name", name);
-    formdata.append("productImage", image);
-    formdata.append("category", category);
-    formdata.append("description", description);
-    formdata.append("brand", brand);
-    formdata.append("quantity", quantity);
-    formdata.append("price", price);
-    formdata.append("countInStock", stock);
-
-    // Append additional fields conditionally based on category
-    if (category === "clothingCategoryId") {
-      formdata.append("size", size.toUpperCase());
-      formdata.append("gender", gender.toLowerCase());
-    } else if (category === "electronicsCategoryId") {
-      formdata.append("warranty", warranty);
-    } else if (category === "furnitureCategoryId") {
-      formdata.append("material", material);
+    const productData = new FormData();
+    for (const key in formData) {
+      if (formData[key] !== null && formData[key] !== "") {
+        productData.append(key, formData[key]);
+      }
     }
 
     try {
-      const res = await createProduct(formdata).unwrap();
-      if (!res) {
-        console.error(res.data.error);
-        addToast("error", "Product creation failed!");
-      } else {
-        addToast("success", "Product Successfully Created");
-        navigate("/admin/allproductslist");
-      }
+      const res = await createProduct(productData).unwrap();
+      addToast("success", "Product Successfully Created");
+      navigate("/admin/allproductslist");
     } catch (error) {
       console.error(error);
-      addToast("error", error.data.error);
+      addToast("error", error.data?.error || "Failed to create product");
     }
   };
 
-  return (
-    <form
-      onSubmit={submitHandler}
-      className="p-4 sm:p-8 md:ml-16 bg-[#292B4B] overflow-y-auto"
-    >
-      {isAdding ? (
-        <div className=" absolute z-50 flex justify-center items-center ">
-          <Loader />
-        </div>
-      ) : (
-        ""
-      )}
-      <div className="relative m-16 ">
-        <AdminMenu />
-      </div>
-
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 ">
-        <h1 className="text-2xl md:text-3xl font-bold font-serif text-white">
-          Add <span className="text-[#7303c0]">Product </span>
-        </h1>
-        <div className="mt-4 md:mt-0 space-x-2">
-          <button
-            type="button"
-            onClick={resetFields}
-            className="px-4 py-2 bg-gray-200 text-gray-800 focus:ring-2 focus:ring-offset-2 focus:outline-none focus:ring-purple-500 rounded"
+  const renderCategoryOptions = (categories, depth = 0, parentPath = []) => {
+    return categories?.map((category) => {
+      const currentPath = [...parentPath, category._id];
+      const isSelected =
+        JSON.stringify(currentPath) === JSON.stringify(selectedCategoryPath);
+      return (
+        <React.Fragment key={category._id}>
+          <div
+            className={`py-2 px-4 cursor-pointer hover:bg-[#292B4B] transition-colors flex items-center ${
+              isSelected ? "bg-[#7303c0] text-white" : ""
+            }`}
+            style={{ paddingLeft: `${depth * 20 + 16}px` }}
+            onClick={() => {
+              setFormData((prev) => ({ ...prev, category: category._id }));
+              setSelectedCategoryPath(currentPath);
+              if (
+                !category.subcategories ||
+                category.subcategories.length === 0
+              ) {
+                setIsMenuOpen(false);
+              }
+            }}
           >
-            Discard Changes
-          </button>
-          <button
-            disabled={isAdding}
-            type="submit"
-            className="px-4 py-2 bg-gradient-to-r from-[#7303c0] to-[#ec38bc] text-white font-bold inline-flex items-center rounded hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-          >
-            {isAdding ? "Adding..." : "Add Product "}
-            <svg
-              className="w-4 h-4 ml-2"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 14 10"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M1 5h12m0 0L9 1m4 4L9 9"
+            {category.subcategories && category.subcategories.length > 0 && (
+              <ChevronRight className="mr-2" />
+            )}
+            <span>{category.name}</span>
+          </div>
+          {category.subcategories &&
+            renderCategoryOptions(
+              category.subcategories,
+              depth + 1,
+              currentPath
+            )}
+        </React.Fragment>
+      );
+    });
+  };
+
+  const getCategoryNameFromPath = (path) => {
+    let current = { subcategories: categories };
+    let name = "";
+    for (let id of path) {
+      current = current.subcategories.find((cat) => cat._id === id);
+      if (current) {
+        name = current.name;
+      } else {
+        break;
+      }
+    }
+    return name;
+  };
+  
+  const renderCategorySpecificFields = () => {
+    const getCategoryPathNames = (path) => {
+      let names = [];
+      let current = { subcategories: categories };
+      for (let id of path) {
+        current = current.subcategories.find((cat) => cat._id === id);
+        if (current) {
+          names.push(current.name);
+        } else {
+          break;
+        }
+      }
+      return names;
+    };
+  
+    const categoryPathNames = getCategoryPathNames(selectedCategoryPath);
+  
+    // Check if any part of the path contains Electronics or Clothing
+    const isElectronics = categoryPathNames.some((name) => name === "Electronics");
+    const isClothing = categoryPathNames.some((name) => name === "Clothing");
+  
+    return (
+      <>
+        {isElectronics && (
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Warranty (months)
+            </label>
+            <input
+              type="number"
+              name="warranty"
+              value={formData.warranty}
+              onChange={handleInputChange}
+              className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+              placeholder="Enter warranty period"
+            />
+          </div>
+        )}
+        {isClothing && (
+          <>
+            <div>
+              <label className="block text-sm font-medium mb-2">Size</label>
+              <input
+                type="text"
+                name="size"
+                value={formData.size}
+                onChange={handleInputChange}
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+                placeholder="Enter size (S, M, L, etc.)"
               />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
-        <div className="col-span-2 space-y-6">
-          <div className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow">
-            <h2 className=" text-lg text-white md:text-xl font-semibold mb-4">
-              General Information
-            </h2>
-            <div className=" space-y-4">
-              <div>
-                <label htmlFor="title" className="block mb-1 text-white">
-                  Product Name
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  name="name"
-                  value={name}
-                  placeholder="Enter Product name"
-                  onChange={(e) => setName(e.target.value)}
-                  className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
-                />
-              </div>
-              <div>
-                <label htmlFor="Descripton" className="block mb-1 text-white">
-                  Description
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-2 border bg-[#292B4B] border-gray-700 text-slate-300  rounded focus:outline-none focus:bg-white focus:text-black"
-                  placeholder="Enter product description"
-                />
-              </div>
             </div>
-          </div>
-
-          <div className="bg-[#1B1C30] text-white p-4 sm:p-6 rounded-lg shadow">
-            <h2 className="text-lg md:text-xl font-semibold mb-4">Pricing</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block ">Base Price</label>
-                <input
-                  type="number"
-                  value={price}
-                  onWheel={(e) => e.target.blur()}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
-                  placeholder="Enter base price"
-                />
-              </div>
-              <div>
-                <label className="block"> Brand</label>
-                <input
-                  type="text"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
-                  placeholder="Enter Brand Name"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#1B1C30] text-white p-4 sm:p-6 rounded-lg shadow">
-            <h2 className="text-lg md:text-xl font-semibold mb-4">Inventory</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block ">Quantity</label>
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  onWheel={(e) => e.target.blur()}
-                  className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
-                  placeholder="Enter base price"
-                />
-              </div>
-              <div>
-                <label className="block ">Stock</label>
-                <input
-                  type="number"
-                  value={stock}
-                  onChange={(e) => setStock(e.target.value)}
-                  onWheel={(e) => e.target.blur()}
-                  className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4 text-white">
-          <div className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow">
-            <h2 className="text-lg md:text-xl font-semibold mb-4">
-              Product Media
-            </h2>
-            <div className="flex flex-col items-center">
-              <img
-                src={productImage ? productImage : img}
-                alt="Product"
-                className="w-32 h-32 sm:w-48 sm:h-48 object-cover mb-4 rounded"
-              />
-              <label className="block">
-                <span className="sr-only">Choose image</span>
-                <input
-                  type="file"
-                  className="block w-full text-sm text-slate-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-violet-50 file:text-violet-700
-                    hover:file:bg-violet-100"
-                  onChange={addProductImage}
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="space-y-4 text-white">
-            <div className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow">
-              <h2 className="text-lg md:text-xl font-semibold mb-4">
-                Category
-              </h2>
+            <div>
+              <label className="block text-sm font-medium mb-2">Gender</label>
               <select
-                id="Category"
-                name="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black custom-select"
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
               >
-                <option value="None">None</option>
-                {categories?.map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.name}
-                  </option>
-                ))}
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Unisex">Unisex</option>
               </select>
             </div>
+          </>
+        )}
+        {categoryPathNames.includes("Furniture") && (
+          <div>
+            <label className="block text-sm font-medium mb-2">Material</label>
+            <input
+              type="text"
+              name="material"
+              value={formData.material}
+              onChange={handleInputChange}
+              className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+              placeholder="Enter furniture material"
+            />
+          </div>
+        )}
+      </>
+    );
+  };
+  
 
-            {categories?.map(
-              (c) =>
-                category === c._id &&
-                c.name === "Clothing" && (
-                  <div
-                    key={c._id}
-                    className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow"
-                  >
-                    <label className="block text-white">Size</label>
-                    <input
-                      type="text"
-                      value={size}
-                      onChange={(e) => setSize(e.target.value)}
-                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl"
-                      placeholder="Enter size (S, M, L, etc.)"
-                    />
-                    <label className="block">Gender</label>
-                    <select
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Unisex">Unisex</option>
-                    </select>
-                  </div>
-                )
-            )}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#1e1f3b] to-[#292B4B] text-white p-4 sm:p-8">
+      <AdminMenu />
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-4xl mx-auto mt-10 bg-[#1e1f3b] rounded-xl shadow-2xl p-6 sm:p-10"
+      >
+        <h1 className="text-3xl font-bold mb-8 text-[#ff0066] text-center">
+          Add New Product
+        </h1>
 
-            {categories?.map(
-              (c) =>
-                category === c._id &&
-                c.name === "Electronic" && (
-                  <div
-                    key={c._id}
-                    className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow"
-                  >
-                    <label className="block text-white">Size</label>
-                    <input
-                      type="text"
-                      value={size}
-                      onChange={(e) => setSize(e.target.value)}
-                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl"
-                      placeholder="Enter size (S, M, L, etc.)"
-                    />
-                    <label className="block">Gender</label>
-                    <select
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                      className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl focus:outline-none focus:bg-white focus:text-black"
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Unisex">Unisex</option>
-                    </select>
-                  </div>
-                )
-            )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Product Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+                placeholder="Enter product name"
+                required
+              />
+            </div>
 
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows="4"
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+                placeholder="Enter product description"
+                required
+              />
+            </div>
 
-            {category === "electronicsCategoryId" && (
-              <div className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow">
-                <label className="block text-white">Warranty</label>
-                <input
-                  type="text"
-                  value={warranty}
-                  onChange={(e) => setWarranty(e.target.value)}
-                  className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl"
-                  placeholder="Enter warranty (e.g., 1 year, 2 years)"
+            <div>
+              <label className="block text-sm font-medium mb-2">Price</label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+                placeholder="Enter price"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Brand</label>
+              <input
+                type="text"
+                name="brand"
+                value={formData.brand}
+                onChange={handleInputChange}
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+                placeholder="Enter brand name"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="relative">
+              <label className="block text-sm font-medium mb-2">Category</label>
+              <div
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] cursor-pointer flex justify-between items-center"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                <span>
+                  {selectedCategoryPath.length > 0
+                    ? getCategoryNameFromPath(selectedCategoryPath)
+                    : "Select a category"}
+                </span>
+                <ChevronDown
+                  className={`transition-transform ${
+                    isMenuOpen ? "rotate-180" : ""
+                  }`}
                 />
               </div>
-            )}
+              {isMenuOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-[#292B4B] border border-[#7303c0] rounded-lg shadow-xl max-h-60 overflow-auto">
+                  {renderCategoryOptions(categories)}
+                </div>
+              )}
+            </div>
 
-            {category === "furnitureCategoryId" && (
-              <div className="bg-[#1B1C30] p-4 sm:p-6 rounded-lg shadow">
-                <label className="block text-white">Material</label>
-                <input
-                  type="text"
-                  value={material}
-                  onChange={(e) => setMaterial(e.target.value)}
-                  className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded-xl"
-                  placeholder="Enter material (e.g., Wood, Metal)"
-                />
+            <div>
+              <label className="block text-sm font-medium mb-2">Stock</label>
+              <input
+                type="number"
+                name="countInStock"
+                value={formData.countInStock}
+                onChange={handleInputChange}
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+                placeholder="Enter stock quantity"
+                required
+              />
+            </div>
+
+            {formData.category && renderCategorySpecificFields()}
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Product Image
+              </label>
+              <div className="flex items-center justify-center w-full">
+                <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-[#7303c0] border-dashed rounded-lg cursor-pointer bg-[#292B4B] hover:bg-[#292B4B]/80 transition-all">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Product Preview"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <>
+                        <CloudUpload className="w-10 h-10 mb-3 text-[#ff0066]" />
+                        <p className="mb-2 text-sm text-gray-300">
+                          <span className="font-semibold">Click to upload</span>{" "}
+                          or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          PNG, JPG or GIF (MAX. 800x400px)
+                        </p>
+                      </>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    name="productImage"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                </label>
               </div>
-            )}
+            </div>
           </div>
         </div>
-      </div>
-    </form>
-  );
-}
 
-export default Products;
+        <div className="mt-8 flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
+          <button
+            type="button"
+            onClick={resetForm}
+            className="w-full sm:w-auto px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            Reset
+          </button>
+          <button
+            type="submit"
+            disabled={isAdding}
+            className="w-full sm:w-auto px-6 py-2 bg-gradient-to-r from-[#ff0066] to-[#7303c0] text-white rounded-lg hover:from-[#ff0066]/80 hover:to-[#7303c0]/80 transition-colors disabled:opacity-50"
+          >
+            {isAdding ? "Adding..." : "Add Product"}
+          </button>
+        </div>
+      </form>
+
+      {isAdding && <Loader />}
+    </div>
+  );
+};
+
+export default ProductsList;
