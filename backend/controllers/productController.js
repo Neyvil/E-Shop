@@ -2,9 +2,10 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
 import Category from "../models/categoryModel.js";
 import fs from "fs";
+
 import { fileURLToPath } from "url";
 import { dirname, join, basename, dirname as getDirname } from "path";
-
+import path from "path"
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -138,18 +139,27 @@ const updateProduct = asyncHandler(async (req, res) => {
 
     // Handle product image replacement
     if (req.file) {
+      // Check if there is an existing image and delete it
       if (product.productImage) {
-        const imagePath = path.join("uploads/products", product.productImage);
-        const existingImagePath = imagePath.replace("uploads\\products\\", "");
-        fs.unlink(existingImagePath, (err) => {
-          if (err) {
-            console.error("Failed to delete existing image:", err);
-          } else {
-            console.log("Successfully deleted existing image");
-          }
-        });
+        // Construct the path to the existing image
+        const absoluteImagePath = path.join(__dirname, "..", "..", product.productImage);
+
+        // Delete the existing image
+        if (fs.existsSync(absoluteImagePath)) {
+          fs.unlink(absoluteImagePath, (err) => {
+            if (err) {
+              console.error("Failed to delete existing image:", err);
+            } else {
+              console.log("Successfully deleted existing image");
+            }
+          });
+        } else {
+          console.log("Image file does not exist:", absoluteImagePath);
+        }
       }
-      product.productImage = req.file.path;
+
+      // Save the new image path
+      product.productImage = req.file.path; // Store the new image path from req.file
       console.log("New Image Path:", req.file.path);
     }
 
@@ -245,6 +255,7 @@ const updateProduct = asyncHandler(async (req, res) => {
       .json({ message: "Product update failed", error: error.message });
   }
 });
+
 // ******* Heavy mistake done here in path so i carefully commented every step ***** remember this
 const removeProduct = asyncHandler(async (req, res) => {
   try {
