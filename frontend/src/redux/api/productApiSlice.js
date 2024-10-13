@@ -76,12 +76,17 @@ export const productApiSlice = apiSlice.injectEndpoints({
     }),
 
     getFilteredProducts: builder.query({
-      query: ({ checked, radio }) => ({
-        url: `${PRODUCT_URL}/filtered-products`,
-        method: "POST",
-        body: { checked, radio },
-      }),
-    }),
+  query: ({ checked, radio, priceFilter, genderFilter }) => ({
+    url: `${PRODUCT_URL}/filtered-products`,
+    method: "POST",
+    body: { 
+      categories: checked, 
+      brand: radio, 
+      priceFilter, 
+      gender: genderFilter 
+    },
+  }),
+}),
   }),
 });
 

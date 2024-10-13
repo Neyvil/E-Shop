@@ -455,7 +455,7 @@ const fetchNewProducts = asyncHandler(async (req, res) => {
 
 const filterProducts = asyncHandler(async (req, res) => {
   try {
-    const { categories, priceRange, gender } = req.body;
+    const { categories, priceFilter, gender, brand } = req.body;
     let query = {};
 
     if (categories && categories.length > 0) {
@@ -463,12 +463,16 @@ const filterProducts = asyncHandler(async (req, res) => {
       query.category = { $in: categoryIds };
     }
 
-    if (priceRange && priceRange.length === 2) {
-      query.price = { $gte: priceRange[0], $lte: priceRange[1] };
+    if (priceFilter) {
+      query.price = { $lte: parseFloat(priceFilter) };
     }
 
-    if (gender) {
-      query["clothingAttributes.gender"] = gender;
+    if (gender && gender !== "") {
+      query['clothingAttributes.gender'] = gender.toLowerCase();
+    }
+
+    if (brand) {
+      query.brand = brand;
     }
 
     const products = await Product.find(query).populate("category");
@@ -482,13 +486,23 @@ const filterProducts = asyncHandler(async (req, res) => {
 const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
-      .populate("category")
-      .limit(100)
+      .populate({
+        path: 'category',
+        populate: {
+          path: 'parentCategory',
+          model: 'Category'
+        }
+      })
       .sort({ createdAt: -1 });
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found" });
+    }
+
     res.json(products);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server Error" });
+    console.error('Error in fetchAllProducts:', error);
+    res.status(500).json({ error: "Internal server Error", details: error.message });
   }
 });
 

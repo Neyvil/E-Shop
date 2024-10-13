@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateProductMutation } from "../../redux/api/productApiSlice";
 import { useFetchCategoriesQuery } from "../../redux/api/categoryApisSlice";
 import { useToast } from "../../components/Toast/ToastProvider";
 import { CloudUpload, ChevronDown, ChevronRight } from "lucide-react";
-import defaultProductImage from "../../image/defaultProductImage.png";
 import Loader from "../../components/Loader";
 import AdminMenu from "./AdminMenu";
+import { set } from "mongoose";
 
 const ProductsList = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: 0,
-    category: "",
-    brand: "",
-    countInStock: 0,
-    productImage: null,
-    size: "",
-    gender: "",
-    warranty: "",
-    material: "",
-  });
+  const [name, setName] = useState("");
+  const [productImage, setProductImage] = useState(null);
+  const [description, setDescription] = useState("");
+  const [size, setSize] = useState("");
+  const [brand, setBrand] = useState("");
+  const [gender, setGender] = useState("");
+  const [material, setMaterial] = useState("");
+  const [category, setCategory] = useState("");
+  const [countInStock, setCountInStock] = useState(0);
+  const [quantity, setQuantity] = useState(0);
+  const [warranty, setWarranty] = useState("");
+  const [price, setPrice] = useState("");
+  const [color, setColor] = useState("");
 
   const [imagePreview, setImagePreview] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,51 +32,55 @@ const ProductsList = () => {
     useFetchCategoriesQuery();
   const addToast = useToast();
 
-  const handleInputChange = (e) => {
-    const { name, value, type } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "number" ? parseFloat(value) : value,
-    }));
-  };
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, productImage: file }));
+      setProductImage(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
 
   const resetForm = () => {
-    setFormData({
-      name: "",
-      description: "",
-      price: 0,
-      category: "",
-      brand: "",
-      countInStock: 0,
-      productImage: null,
-      size: "",
-      gender: "",
-      warranty: "",
-      material: "",
-    });
+    setName("");
+    setBrand("");
+    setCategory("");
+    setDescription("");
+    setPrice("");
+    setProductImage(null);
+    setWarranty("");
+    setGender("");
+    setColor("");
+    setCountInStock(0);
+    setQuantity(0);
+    setMaterial("");
+    setSize("");
     setImagePreview("");
     setSelectedCategoryPath([]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const productData = new FormData();
-    for (const key in formData) {
-      if (formData[key] !== null && formData[key] !== "") {
-        productData.append(key, formData[key]);
-      }
-    }
 
     try {
-      const res = await createProduct(productData).unwrap();
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("productImage", productImage);
+      formData.append("categoryId", category); // Changed from "category" to "categoryId"
+      formData.append("selectedCategoryPath", selectedCategoryPath);
+      formData.append("description", description);
+      formData.append("brand", brand);
+      formData.append("quantity", quantity);
+      formData.append("countInStock", countInStock);
+      formData.append("price", price);
+
+      // Add category-specific fields
+      if (size) formData.append("size", size);
+      if (gender) formData.append("gender", gender);
+      if (color) formData.append("color", color);
+      if (warranty) formData.append("warranty", warranty);
+      if (material) formData.append("material", material);
+
+      const res = await createProduct(formData).unwrap();
       addToast("success", "Product Successfully Created");
       navigate("/admin/allproductslist");
     } catch (error) {
@@ -98,7 +102,7 @@ const ProductsList = () => {
             }`}
             style={{ paddingLeft: `${depth * 20 + 16}px` }}
             onClick={() => {
-              setFormData((prev) => ({ ...prev, category: category._id }));
+              setCategory(category._id);
               setSelectedCategoryPath(currentPath);
               if (
                 !category.subcategories ||
@@ -137,7 +141,7 @@ const ProductsList = () => {
     }
     return name;
   };
-  
+
   const renderCategorySpecificFields = () => {
     const getCategoryPathNames = (path) => {
       let names = [];
@@ -152,13 +156,15 @@ const ProductsList = () => {
       }
       return names;
     };
-  
+
     const categoryPathNames = getCategoryPathNames(selectedCategoryPath);
-  
-    // Check if any part of the path contains Electronics or Clothing
-    const isElectronics = categoryPathNames.some((name) => name === "Electronics");
+
+    const isElectronics = categoryPathNames.some(
+      (name) => name === "Electronics"
+    );
     const isClothing = categoryPathNames.some((name) => name === "Clothing");
-  
+    const isFurniture = categoryPathNames.includes("Furniture");
+
     return (
       <>
         {isElectronics && (
@@ -169,8 +175,9 @@ const ProductsList = () => {
             <input
               type="number"
               name="warranty"
-              value={formData.warranty}
-              onChange={handleInputChange}
+              onWheel={(e) => e.target.blur()}
+              value={warranty}
+              onChange={(e) => setWarranty(e.target.value)}
               className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
               placeholder="Enter warranty period"
             />
@@ -183,18 +190,29 @@ const ProductsList = () => {
               <input
                 type="text"
                 name="size"
-                value={formData.size}
-                onChange={handleInputChange}
+                value={size}
+                onChange={(e) => setSize(e.target.value)}
                 className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
                 placeholder="Enter size (S, M, L, etc.)"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Colour</label>
+              <input
+                type="text"
+                name="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+                placeholder="Enter Colour of the Product.."
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Gender</label>
               <select
                 name="gender"
-                value={formData.gender}
-                onChange={handleInputChange}
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
                 className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
               >
                 <option value="">Select Gender</option>
@@ -205,14 +223,14 @@ const ProductsList = () => {
             </div>
           </>
         )}
-        {categoryPathNames.includes("Furniture") && (
+        {isFurniture && (
           <div>
             <label className="block text-sm font-medium mb-2">Material</label>
             <input
               type="text"
               name="material"
-              value={formData.material}
-              onChange={handleInputChange}
+              value={material}
+              onChange={(e) => setWarranty(e.target.value)}
               className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
               placeholder="Enter furniture material"
             />
@@ -221,7 +239,6 @@ const ProductsList = () => {
       </>
     );
   };
-  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1e1f3b] to-[#292B4B] text-white p-4 sm:p-8">
@@ -243,8 +260,8 @@ const ProductsList = () => {
               <input
                 type="text"
                 name="name"
-                value={formData.name}
-                onChange={handleInputChange}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
                 placeholder="Enter product name"
                 required
@@ -257,8 +274,8 @@ const ProductsList = () => {
               </label>
               <textarea
                 name="description"
-                value={formData.description}
-                onChange={handleInputChange}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 rows="4"
                 className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
                 placeholder="Enter product description"
@@ -271,8 +288,22 @@ const ProductsList = () => {
               <input
                 type="number"
                 name="price"
-                value={formData.price}
-                onChange={handleInputChange}
+                value={price}
+                onWheel={(e) => e.target.blur()}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
+                placeholder="Enter price"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Quantity</label>
+              <input
+                type="number"
+                name="price"
+                value={quantity}
+                onWheel={(e) => e.target.blur()}
+                onChange={(e) => setQuantity(e.target.value)}
                 className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
                 placeholder="Enter price"
                 required
@@ -284,8 +315,8 @@ const ProductsList = () => {
               <input
                 type="text"
                 name="brand"
-                value={formData.brand}
-                onChange={handleInputChange}
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
                 className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
                 placeholder="Enter brand name"
                 required
@@ -323,15 +354,16 @@ const ProductsList = () => {
               <input
                 type="number"
                 name="countInStock"
-                value={formData.countInStock}
-                onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
+                value={countInStock}
+                onChange={(e) => setCountInStock(e.target.value)}
                 className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
                 placeholder="Enter stock quantity"
                 required
               />
             </div>
 
-            {formData.category && renderCategorySpecificFields()}
+            {category && renderCategorySpecificFields()}
 
             <div>
               <label className="block text-sm font-medium mb-2">
@@ -344,7 +376,7 @@ const ProductsList = () => {
                       <img
                         src={imagePreview}
                         alt="Product Preview"
-                        className="w-full h-full object-contain"
+                        className="w-32 h-32 sm:w-48 sm:h-48 object-cover mb-4"
                       />
                     ) : (
                       <>
@@ -364,7 +396,6 @@ const ProductsList = () => {
                     name="productImage"
                     onChange={handleImageChange}
                     className="hidden"
-                    accept="image/*"
                   />
                 </label>
               </div>

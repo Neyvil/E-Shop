@@ -21,13 +21,19 @@ const productSchema = mongoose.Schema(
     productImage: { type: String, required: true },
     brand: { type: String, required: true },
     category: { type: ObjectId, ref: "Category", required: true },
+    selectedCategoryPath: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
     description: { type: String, required: true },
     reviews: [reviewSchema],
     rating: { type: Number, required: true, default: 0 },
     numReviews: { type: Number, required: true, default: 0 },
     price: { type: Number, required: true, default: 0 },
     countInStock: { type: Number, required: true, default: 0 },
-    
+
     clothingAttributes: {
       gender: {
         type: String,
@@ -40,13 +46,13 @@ const productSchema = mongoose.Schema(
         type: String,
         enum: ["XS", "S", "M", "L", "XL", "XXL"],
         required: function () {
-          return this.category.name=== "clothing";
+          return this.category.name === "clothing";
         },
       },
       color: {
         type: String,
         required: function () {
-          return this.category.name=== "clothing";
+          return this.category.name === "clothing";
         },
       },
     },
@@ -70,9 +76,7 @@ const productSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-
 // In this case, the Product documents will be stored within this database under the collection named "products" because Mongoose, by default, pluralizes the model name ("Product" becomes "products" for the collection name).
-
 
 const Product = mongoose.model("Product", productSchema);
 export default Product;

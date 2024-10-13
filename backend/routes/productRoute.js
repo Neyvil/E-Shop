@@ -76,7 +76,7 @@ router.route("/top").get(fetchTopProducts);
 router.route("/new").get(fetchNewProducts);
 
 // Filter products
-router.route("/filter").post(filterProducts);
+router.route("/filtered-products").post(filterProducts);
 
 // Fetch, update, or delete a specific product
 router
