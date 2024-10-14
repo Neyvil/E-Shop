@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.1.10",
     "@paypal/react-paypal-js": "^8.5.0",
     "@reduxjs/toolkit": "^2.2.5",
     "apexcharts": "^3.49.1",

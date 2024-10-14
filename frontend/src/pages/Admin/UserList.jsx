@@ -1,247 +1,181 @@
-import { useEffect, useState } from "react";
-import Loader from "../../components/Loader";
+import React, { useState, useEffect } from "react";
 import { useToast } from "../../components/Toast/ToastProvider";
 import {
   useDeleteUserMutation,
   useGetUsersQuery,
   useUpdateUserMutation,
 } from "../../redux/api/usersApiSlice";
-import img from "../../image/defaultProfile.jpg";
-import moment from "moment";
-import { Trash, FilePenLine, X } from "lucide-react";
-import AdminMenu from "./AdminMenu";
+import { Trash2, Edit, X , User2Icon } from "lucide-react";
 
 const UserList = () => {
-  const { data: users, refetch, error } = useGetUsersQuery();
+  const { data: users, refetch, isLoading, error } = useGetUsersQuery();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
-
+  const addToast = useToast();
   const [selectedUser, setSelectedUser] = useState(null);
-  const [showProfile, setShowProfile] = useState(false);
-  const [role, setRole] = useState("");
-
-  const [editableUserName, setEditableUserName] = useState("");
-  const [editableUserEmail, setEditableUserEmail] = useState("");
-  const addtoast = useToast();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    username: "",
+    email: "",
+    role: "",
+  });
 
   useEffect(() => {
-    refetch();
     if (selectedUser) {
-      setEditableUserName(selectedUser.username);
-      setEditableUserEmail(selectedUser.email);
-      setRole(selectedUser.isAdmin ? "Admin" : "User");
+      setEditForm({
+        username: selectedUser.username,
+        email: selectedUser.email,
+        role: selectedUser.role,
+      });
     }
-  }, [refetch, selectedUser]);
+  }, [selectedUser]);
 
-  const userClickHandler = (user) => {
+  useEffect(() => {
+    if (error) {
+      addToast("error", "Failed to fetch users. Please try again later.");
+    }
+  }, [error, addToast]);
+
+  const handleEditUser = (user) => {
     setSelectedUser(user);
-    setShowProfile(true);
+    setIsEditModalOpen(true);
   };
 
-  const handleCloseProfile = () => {
-    setShowProfile(false);
-  };
-
-  const deleteUserHandler = async (id) => {
+  const handleDeleteUser = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        const res = await deleteUser(id);
-        if (res.error) {
-          addtoast("error", res.error.data.message);
-        }
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        const errorMessage =
-          error?.response?.data?.message ||
-          error?.message ||
-          "An error occurred";
-        addtoast("error", errorMessage);
+        const result = await deleteUser(id).unwrap();
+        addToast("success", result.message || "User deleted successfully");
+        refetch();
+      } catch (err) {
+        addToast("error", err.data?.message || "Error deleting user");
       }
     }
   };
 
-  const updateHandler = async () => {
+  const handleUpdateUser = async () => {
     try {
-      const payload = {
+      const result = await updateUser({
         userId: selectedUser._id,
-        username: editableUserName,
-        email: editableUserEmail,
-        isAdmin: role === "Admin",
-      };
-
-      await updateUser(payload);
-      addtoast("success", `${payload.username} profile updated`);
+        ...editForm,
+      }).unwrap();
+      addToast("success", `${result.username} updated successfully`);
+      setIsEditModalOpen(false);
       refetch();
-      setShowProfile(false);
-    } catch (error) {
-      const errorMessage =
-        error?.data?.message || error?.message || "An error occurred";
-      addtoast("error", errorMessage);
+    } catch (err) {
+      addToast("error", err.data?.message || "Error updating user");
     }
   };
 
+  if (isLoading) {
+    return <div className="text-center py-10 text-gray-300">Loading users...</div>;
+  }
+
   return (
-    <div className="h-screen ml-10 flex justify-center items-center bg-[#292B4B] overflow-y-auto">
-      <div className="relative mb-10">
-        <AdminMenu />
-      </div>
-      <section className="w-[85%] bg-[#1B1C30] shadow-xl p-[2rem] text-center rounded-2xl">
-        <h1 className="text-4xl font-serif font-bold text-white lg:mt-0 mb-4">
-          Users <span className="text-[#7303c0]">Details</span>
-        </h1>
-        <p className="text-xl text-slate-200 -mt-4 mb-6">
-          Total Users:{" "}
-          <span className="text-[#7303c0]">{users ? users.length : 0}</span>
-        </p>
-
-        <div className="flex lg:justify-between items-center lg:flex-row flex-col">
-          {/* Table */}
-          <div className="w-full mt-4 max-h-[40vh] lg:max-h-[60vh] overflow-auto">
-            <table className="w-full border-separate border-spacing-y-2">
-              <thead className="sticky top-0 bg-[#2A2C4A] z-10">
-                <tr>
-                  <th className="text-white font-bold text-xl">ID</th>
-                  <th className="text-white font-bold text-xl">Avatar</th>
-                  <th className="text-white font-bold text-xl">Username</th>
-                  <th className="text-white font-bold text-xl">Email</th>
-                  <th className="text-white font-bold text-xl">Role</th>
-                  <th className="text-white font-bold text-xl">Since</th>
-                  <th className="text-white font-bold text-xl">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users &&
-                  users.map((user) => (
-                    <tr key={user._id} className="bg-[#24253C] hover:bg-[#292B4B]">
-                      <td className="text-white text-center p-3">
-                        {user._id ? user._id.slice(-8) : user._id}
-                      </td>
-                      <td className="text-center">
-                        <img
-                          src={
-                            user.image
-                              ? `http://localhost:5000/${user.image.replace(
-                                  /\\/g,
-                                  "/"
-                                )}`
-                              : img
-                          }
-                          alt={user.username}
-                          className="w-12 h-12 rounded-lg mx-auto"
-                        />
-                      </td>
-                      <td className="text-white text-center p-3">
-                        {user.username}
-                      </td>
-                      <td className="text-white text-center p-3">
-                        {user.email}
-                      </td>
-                      <td className="text-white text-center p-3">
-                        {user.isAdmin ? "Admin" : "User"}
-                      </td>
-                      <td className="text-white text-center p-3">
-                        {user.createdAt
-                          ? moment(user.createdAt).format("YYYY-MM-DD")
-                          : user.createdAt}
-                      </td>
-                      <td className="text-center p-3">
-                        <button onClick={() => deleteUserHandler(user._id)}>
-                          <Trash color="#7303c0" size={24} />
-                        </button>
-                        <button
-                          onClick={() => userClickHandler(user)}
-                          className="ml-3"
-                        >
-                          <FilePenLine color="#7303c0" size={24} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* User Profile Modal */}
-          {showProfile && selectedUser && (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
-              <div className="bg-[#1B1C30] p-8 rounded-2xl shadow-lg w-[30rem]">
-                <button
-                  className="absolute top-4 right-4 p-1 rounded-lg hover:bg-[#7303c0]"
-                  onClick={handleCloseProfile}
-                >
-                  <X color="white" />
-                </button>
-
-                <div className="flex flex-col items-center">
-                  <img
-                    src={
-                      selectedUser.image
-                        ? `http://localhost:5000/${selectedUser.image.replace(
-                            /\\/g,
-                            "/"
-                          )}`
-                        : img
-                    }
-                    alt={selectedUser.username}
-                    className="w-20 h-20 mb-4 rounded-full"
-                  />
-                  <p className="text-white font-serif text-lg">
-                    {selectedUser.username}
-                  </p>
-                  <p className="text-[#7303c0] font-serif text-sm mb-6">
-                    {selectedUser.isAdmin ? "Administrator" : "User"}
-                  </p>
-
-                  <label className="w-full mb-4">
-                    <span className="text-white font-serif text-lg">Username</span>
-                    <input
-                      type="text"
-                      className="w-full mt-2 px-3 py-2 bg-[#292B4B] rounded-lg text-white"
-                      value={editableUserName}
-                      onChange={(e) => setEditableUserName(e.target.value)}
+    <div className="p-6 bg-[#1e1f3b] min-h-screen">
+      <h1 className="text-4xl font-bold text-gray-100 mb-8 text-center"> User <span className="text-gradient bg-gradient-to-r from-[#a445b2] via-[#d41872] to-[#ff0066] bg-clip-text text-transparent">
+                  Management
+                </span></h1>
+      <div className=" m-auto lg:ml-32 bg-gray-800 rounded-lg shadow-lg overflow-x-auto lg:overflow-hidden">
+        <table className="w-full divide-y bg-[#1B1C30] text-white">
+          <thead className="bg-[#7303c0]">
+            <tr>
+              <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Avatar</th>
+              <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Username</th>
+              <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Email</th>
+              <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Role</th>
+              <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-700">
+            {users?.map((user) => (
+              <tr key={user._id} className="hover:bg-gray-750 transition-colors duration-200">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex-shrink-0 h-12 w-12">
+                    <img
+                      className="h-12 w-12 rounded-full object-cover border-2 border-[#ff0066]"
+                      src={
+                        user.image
+                          ? `http://localhost:5000/${user.image.replace(/\\/g, "/")}`
+                          : "https://via.placeholder.com/48"
+                      }
+                      alt={user.username}
                     />
-                  </label>
-
-                  <label className="w-full mb-4">
-                    <span className="text-white font-serif text-lg">Email</span>
-                    <input
-                      type="email"
-                      className="w-full mt-2 px-3 py-2 bg-[#292B4B] rounded-lg text-white"
-                      value={editableUserEmail}
-                      onChange={(e) => setEditableUserEmail(e.target.value)}
-                    />
-                  </label>
-
-                  <label className="w-full mb-6">
-                    <span className="text-white font-serif text-lg">Role</span>
-                    <select
-                      value={role}
-                      onChange={(e) => setRole(e.target.value)}
-                      className="w-full mt-2 px-3 py-2 bg-[#292B4B] rounded-lg text-white"
-                    >
-                      <option value="Admin">Admin</option>
-                      <option value="User">User</option>
-                    </select>
-                  </label>
-
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap font-medium">{user.username}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    user.role === 'superadmin'
+                      ? 'bg-[#ff0066] text-white': user.role === 'admin'? 'bg-purple-200 text-purple-800'
+                      : 'bg-green-800 text-white'
+                  }`}>
+                    {user.role}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
-                    disabled={isUpdating}
-                    onClick={updateHandler}
-                    className="w-full py-2 bg-[#7303c0] text-white rounded-lg hover:bg-purple-800"
+                    onClick={() => handleEditUser(user)}
+                    className="text-pink-600 hover:text-pink-800 transition-colors duration-200 mr-4"
                   >
-                    {isUpdating ? "Updating..." : "Update"}
+                    <Edit className="h-5 w-5" />
                   </button>
-                  {isUpdating && (
-                    <div className="mt-4">
-                      <Loader />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+                  <button
+                    onClick={() => handleDeleteUser(user._id)}
+                    className="text-red-400 hover:text-red-300 transition-colors duration-200"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+          <div className="relative p-8 w-full max-w-md m-auto flex-col flex rounded-lg bg-gray-800 border border-gray-700 shadow-xl">
+            <h3 className="text-2xl font-bold text-gray-100 mb-6">Edit User</h3>
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-colors duration-200"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <input
+              type="text"
+              value={editForm.username}
+              onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+              placeholder="Username"
+              className="mb-4 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+            />
+            <input
+              type="email"
+              value={editForm.email}
+              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+              placeholder="Email"
+              className="mb-4 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+            />
+            <select
+              value={editForm.role}
+              onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+              className="mb-6 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button
+              onClick={handleUpdateUser}
+              disabled={isUpdating}
+              className="w-full px-4 py-2 bg-indigo-600 text-white font-medium rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200"
+            >
+              {isUpdating ? "Updating..." : "Save changes"}
+            </button>
+          </div>
         </div>
-      </section>
+      )}
     </div>
   );
 };

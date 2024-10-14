@@ -122,16 +122,16 @@ const Navigation = () => {
                 </h2>
                 <ShieldCheck size={20} color="#ff0066" />
               </label>
-
-              {userInfo.isAdmin ? (
-                <p className=" text-sm text-bold text-[#ff0066] text-center">
-                  {showSidebar ? "Admininstrator" : "Admin"}
-                </p>
-              ) : (
-                <p className="text-sm text-bold text-[#ff0066] text-center">
-                  User
-                </p>
-              )}
+                    <div className=" text-[#ff0066] font-serif font-semibold">{userInfo && userInfo.role === "superadmin"
+                ? showSidebar
+                  ? "SuperAdmin"
+                  : "Sadmin"
+                : userInfo.role === "admin"
+                ? showSidebar
+                  ? "Administrator"
+                  : "Admin"
+                : "User"}</div>
+              
             </div>
           </NavLink>
         ) : (
@@ -160,7 +160,7 @@ const Navigation = () => {
             )}
           </NavLink>
 
-          {userInfo && userInfo.isAdmin ? (
+          {userInfo && (userInfo.role === "admin" || userInfo.role === "superadmin") ? (
             <NavLink
               to="/admin/dashboard"
               className="flex items-center transition-transform transform hover:translate-x-5"
@@ -197,7 +197,7 @@ const Navigation = () => {
             )}
           </NavLink>
 
-          {userInfo && userInfo.isAdmin ? (
+          {userInfo &&( userInfo.role === "admin" || userInfo.role === "superadmin") ? (
             <div className=" space-y-6">
               <NavLink
                 to="/admin/orderlist"

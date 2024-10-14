@@ -23,13 +23,31 @@ const authenticate = asyncHandler(async (req, res, next) => {
 });
 
 const authorizeAdmin=(req,res,next)=>{
-    if(req.user&&req.user.isAdmin){
-        next()
-    }else{
-        res.status(401);
-        throw new Error("Not authorised as admin ");
-
+  try {
+    if (req.user && req.user.role === "admin") {
+      next(); 
+    } else {
+      
+      res.status(403).json({ message: "Access denied. not authorised as admin" });
     }
+  } catch (error) {
+   
+    res.status(500).json({ message: "An error occurred while processing your request." });
+  }
 }
+const authorizeSuperAdmin = (req, res, next) => {
+  try {
+    if (req.user && req.user.role === "superadmin") {
+      next(); 
+    } else {
+      
+      res.status(403).json({ message: "Access denied. Only SuperAdmin is allowed." });
+    }
+  } catch (error) {
+  
+    res.status(500).json({ message: "An error occurred while processing your request." });
+  }
+};
 
-export {authenticate,authorizeAdmin};
+
+export {authenticate,authorizeAdmin,authorizeSuperAdmin};

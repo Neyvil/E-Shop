@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import img1 from "../image/img1.jpg"
-import img2 from "../image/img2.jpg"
-import img3 from "../image/img3.jpg"
+import Login from "../image/Login.jpg"
+import Register from "../image/registration.jpg"
 
 const Carousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const images = [
-    img1,img2,img3
+    img1,Login,Register
   ];
 
   useEffect(() => {

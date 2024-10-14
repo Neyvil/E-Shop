@@ -11,7 +11,7 @@ import {
   getUserById,
   userUpdateById,
 } from "../controllers/userController.js";
-import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+import { authenticate, authorizeAdmin, authorizeSuperAdmin } from "../middlewares/authMiddleware.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -44,25 +44,28 @@ const fileFilter = (req, file, cb) => {
 };
 const upload = multer({ storage, fileFilter });
 
+// Route to register and list all users
+// getAllUsers now receives the role from req.user and handles role-based user retrieval
 router
   .route("/")
   .post(createUser)
-  .get(authenticate, authorizeAdmin, getAllUsers);
+  .get(authenticate, getAllUsers);  // Removed authorizeAdmin because the role filtering happens in the controller
+
+// Authentication routes
 router.post("/auth", loginUser);
 router.post("/logout", logoutCurrentUser);
 
+// Route to manage the current user's profile
 router
   .route("/profile")
   .get(authenticate, getCurrentUserProfile)
-  .put( authenticate, upload.single("profileImage"),  UpdateCurrentUserProfile);
+  .put(authenticate, upload.single("profileImage"), UpdateCurrentUserProfile);
 
- 
-
+// Routes for managing users by ID
 router
   .route("/:id")
-  .delete(authenticate, authorizeAdmin, deleteUserById)
-  .get(authenticate,authorizeAdmin, getUserById)
-  .put(authenticate, authorizeAdmin, userUpdateById);
+  .delete(authenticate, deleteUserById) // Admins can't delete SuperAdmin
+  .get(authenticate, authorizeAdmin, getUserById) // Admins can fetch only users
+  .put(authenticate, authorizeSuperAdmin, userUpdateById); // SuperAdmin can update roles
 
- 
 export default router;

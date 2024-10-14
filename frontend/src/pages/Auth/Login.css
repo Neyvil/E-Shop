@@ -1,0 +1,131 @@
+/* Login Page Layout */
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1e1f3b;
+}
+
+.login-container {
+  display: flex;
+  background-color: #292B4B;
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.login-left, .login-right {
+  padding: 40px;
+  width: 50%;
+}
+
+.login-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #292B4B;
+}
+
+.login-logo {
+  text-align: center;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #ff0066;
+  font-weight: bold;
+}
+
+.description {
+  color: #999;
+  margin-top: 10px;
+}
+
+.login-form {
+  margin-top: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  color: white;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px;
+  background-color: #1e1f3b;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  color: #ff0066;
+  cursor: pointer;
+}
+
+.text-error {
+  color: #ff0066;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ff0066;
+  color: white;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #ec38bc;
+}
+
+.sign-up-link {
+  margin-top: 20px;
+  text-align: center;
+  color: white;
+}
+
+.link-highlight {
+  color: #7303c0;
+  margin-left: 5px;
+}
+
+.link-highlight:hover {
+  text-decoration: underline;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}

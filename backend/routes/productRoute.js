@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import multer from "multer";
-import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+import { authenticate, authorizeAdmin, authorizeSuperAdmin } from "../middlewares/authMiddleware.js";
 import checkId from "../middlewares/checkId.js";
 import fs from "fs";
 
@@ -97,6 +97,6 @@ router
     },
     updateProduct
   )
-  .delete(authenticate, authorizeAdmin, removeProduct);
+  .delete(authenticate, authorizeAdmin || authorizeSuperAdmin , removeProduct);
 
 export default router;
