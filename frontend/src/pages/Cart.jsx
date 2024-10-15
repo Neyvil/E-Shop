@@ -28,8 +28,8 @@ const Cart = () => {
       <div className="bg-[#1e1f3b] h-screen text-white overflow-auto">
         <div className="container mx-auto p-4 sm:p-6 md:p-8 lg:p-12">
           {cartItems.length === 0 ? (
-            <div className="text-center">
-              <p className="text-lg">Your cart is empty</p>
+            <div className="text-center mt-16">
+              <p className="text-lg">Your cart is empty 😫</p>
               <Link to="/shop" className="text-[#ff0066] font-semibold">
                 Go To Shop
               </Link>

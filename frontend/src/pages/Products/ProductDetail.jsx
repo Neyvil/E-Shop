@@ -52,6 +52,11 @@ const ProductDetail = () => {
     }
   };
 
+  const buyHandler= ()=>{
+    dispatch({ ...product, qty })
+    navigate("/login?redirect=/shipping");
+  }
+
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty }));
     navigate('/cart');
@@ -183,7 +188,10 @@ const ProductDetail = () => {
                 >
                   Add to Cart
                 </button>
-                <button className="bg-[#7303c0] hover:bg-[#8536d0] w-full py-2 px-6 rounded-lg font-bold transition-all">
+                <button 
+                onClick={buyHandler}
+                disabled={product.countInStock == 0}
+                className="bg-[#7303c0] hover:bg-[#8536d0] w-full py-2 px-6 rounded-lg font-bold transition-all">
                   Buy Now
                 </button>
               </div>
