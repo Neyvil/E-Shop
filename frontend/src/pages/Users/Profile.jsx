@@ -34,7 +34,7 @@ const Profile = () => {
   useEffect(() => {
     if (currentProfileData) {
       if (currentProfileData.image) {
-        const imgstr = `http://localhost:5000/${currentProfileData.image.replace(
+        const imgstr = `https://e-shop-backend-ep6p.onrender.com/${currentProfileData.image.replace(
           /\\/g,
           "/"
         )}`;
@@ -79,7 +79,7 @@ const Profile = () => {
       addToast("success", "Profile updated successfully 🤞");
       dispatch(setCredentials(res));
       if (res.image) {
-        const updatedImgstr = `http://localhost:5000/${res.image.replace(
+        const updatedImgstr = `https://e-shop-backend-ep6p.onrender.com/${res.image.replace(
           /\\/g,
           "/"
         )}`;

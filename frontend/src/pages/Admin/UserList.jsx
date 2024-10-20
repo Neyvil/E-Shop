@@ -96,7 +96,7 @@ const UserList = () => {
                       className="h-12 w-12 rounded-full object-cover border-2 border-[#ff0066]"
                       src={
                         user.image
-                          ? `http://localhost:5000/${user.image.replace(/\\/g, "/")}`
+                          ? `https://e-shop-backend-ep6p.onrender.com/${user.image.replace(/\\/g, "/")}`
                           : "https://via.placeholder.com/48"
                       }
                       alt={user.username}

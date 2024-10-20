@@ -49,7 +49,7 @@ const Navigation = () => {
 
   useEffect(() => {
     if (currentProfileData && currentProfileData.image) {
-      const imgstr = `http://localhost:5000/${currentProfileData.image.replace(
+      const imgstr = `https://e-shop-backend-ep6p.onrender.com/${currentProfileData.image.replace(
         /\\/g,
         "/"
       )}`;

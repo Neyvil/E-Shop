@@ -8,7 +8,7 @@ const SmallProduct = ({ product }) => {
       <img
         src={
           product.productImage
-            ? `http://localhost:5000/${product.productImage.replace(/\\/g, "/")}`
+            ? `https://e-shop-backend-ep6p.onrender.com/${product.productImage.replace(/\\/g, "/")}`
             : img
         }
         alt={product.name}
