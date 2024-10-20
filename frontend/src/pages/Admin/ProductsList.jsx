@@ -6,7 +6,6 @@ import { useToast } from "../../components/Toast/ToastProvider";
 import { CloudUpload, ChevronDown, ChevronRight } from "lucide-react";
 import Loader from "../../components/Loader";
 import AdminMenu from "./AdminMenu";
-import { set } from "mongoose";
 
 const ProductsList = () => {
   const [name, setName] = useState("");
