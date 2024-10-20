@@ -4,7 +4,6 @@ import Message from "../components/Message.jsx";
 import Loader from "../components/Loader.jsx";
 import Header from "../components/Header.jsx";
 import Product from "./Products/Product.jsx";
-import HeartIcon from "./Products/HeartIcon.jsx";
 
 const Home = () => {
   const { keyword } = useParams();

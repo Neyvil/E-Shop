@@ -4,11 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
-  },
+  "dev": "vite",
+  "build": "vite build",
+  "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+  "preview": "vite preview --host",
+  "start": "serve -s dist -l 3000"
+},
+
   "dependencies": {
     "@headlessui/react": "^2.1.10",
     "@paypal/react-paypal-js": "^8.5.0",
@@ -29,6 +31,7 @@
     "react-router-dom": "^6.23.1",
     "react-slick": "^0.30.2",
     "react-toastify": "^10.0.5",
+    "serve": "^14.2.4",
     "slick-carousel": "^1.8.1",
     "tailwindcss": "^3.4.4"
   },

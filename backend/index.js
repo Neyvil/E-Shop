@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use("/uploads", express.static(path.join(path.resolve(), "/backend/uploads")));
 
 app.use(
-  "/uploads/products",
+  "backend/uploads/products",
   express.static(path.join(path.resolve(), "/backend/uploads/products"))
 );
 
