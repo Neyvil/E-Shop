@@ -41,11 +41,11 @@ const router = createBrowserRouter(
         <Route path="/shipping" element={<Shipping />} />
         <Route path="/placeorder" element={<PlaceOrder />} />
         <Route path="/order/:id" element={<Order />} />
+        <Route path="/favourite" element={<Favourites />} />
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route index={true} path="/" element={<Home />} />
-      <Route path="/favourite" element={<Favourites />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/shop" element={<Shop />} />
