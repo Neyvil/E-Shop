@@ -276,10 +276,10 @@ const removeProduct = asyncHandler(async (req, res) => {
       const absoluteFolderPath = join(
         __dirname,
         "..",
-        "..",
         "uploads",
         "products"
       ); // D:\COLLEGE NABAJYOTI\E-Shop\uploads\products
+      console.log(absoluteFolderPath)
       const absoluteImagePath = join(absoluteFolderPath, imageFileName); // Absolute path to the image
 
       // Check if the folder exists
