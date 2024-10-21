@@ -22,12 +22,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Serve static files from the 'uploads' directory
-app.use("/uploads", express.static(path.join(path.resolve(), "/backend/uploads")));
+app.use("/uploads", express.static(path.join(path.resolve(), "backend/uploads")));
 
-app.use(
-  "backend/uploads/products",
-  express.static(path.join(path.resolve(), "/backend/uploads/products"))
-);
+// Serve static files from the 'uploads/products' directory
+app.use("/uploads/products", express.static(path.join(path.resolve(), "backend/uploads/products")));
+
 
 app.use("/api/users", userRoutes);
 app.use("/api/category", categoryRoutes);

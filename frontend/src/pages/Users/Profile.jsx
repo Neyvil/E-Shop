@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { useToast } from "../../components/Toast/ToastProvider";
 import {
   useCurrentProfileDetailsQuery,
@@ -234,9 +235,9 @@ const Profile = () => {
               >
                 {isUpdating ? "Updating.." : "Update"}
               </button>
-              <button className="w-[10rem] h-[3rem] rounded-3xl text-bold text-white bg-purple-700 hover:bg-purple-800 cursor-pointer">
+              <Link to="/orderlist" className="w-[10rem] h-[3rem] p-3 text-center rounded-3xl text-bold text-white bg-purple-700 hover:bg-purple-800 cursor-pointer">
                 My Orders
-              </button>
+              </Link>
             </div>
             {isUpdating && (
               <div className="flex justify-center items-center my-1">
