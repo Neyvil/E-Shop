@@ -17,12 +17,16 @@ const Home = () => {
         <Loader />
       ) : isError ? (
         <Message variant="error">
-          {isError?.data.message || isError.error}
+          {isError?.data?.message ||
+            isError?.error ||
+            "An unknown error occurred"}{" "}
         </Message>
       ) : (
         <>
           <div className="flex justify-between items-center bg-[#1e1f3b] py-4 px-6 md:px-10 lg:px-[10rem] animate-fadeInUp ">
-            <h1 className="text-[2rem] md:text-[3rem] font-bold">Special Products</h1>
+            <h1 className="text-[2rem] md:text-[3rem] font-bold">
+              Special Products
+            </h1>
             <Link
               to="/shop"
               className="bg-pink-600 hover:bg-pink-700 transition duration-300 font-bold rounded-full py-2 px-6 md:px-10 text-sm md:text-base"
