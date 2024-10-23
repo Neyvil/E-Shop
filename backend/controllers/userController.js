@@ -162,7 +162,6 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
     if (req.file) {
       if (user.image) {
         const imagePath = path.join("backend\\uploads", user.image);
-      
         const existingImagePath = imagePath.replace("backend\\uploads\\", "");
 
         fs.unlink(existingImagePath, (err) => {
