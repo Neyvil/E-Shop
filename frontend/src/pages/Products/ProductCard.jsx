@@ -20,7 +20,7 @@ const ProductCard = ({ p }) => {
             className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
             src={
               p.productImage
-                ? `https://e-shop-backend-ep6p.onrender.com/${p.productImage.replace(/\\/g, "/")}`
+                ? `https://e-shopbackend-bnov.onrender.com/${p.productImage.replace(/\\/g, "/")}`
                 : Default
             }
             alt={p.name}
