@@ -19,9 +19,9 @@ const app = express();
 // CORS configuration
 app.use(
   cors({
-    origin: ["https://e-shop-frontend-f1803luwb-neyvils-projects.vercel.app"], // Update with your deployed frontend URL
-    credentials: true, // Allows sending cookies with requests
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed HTTP methods
+    origin: ["https://e-shop-frontend-f1803luwb-neyvils-projects.vercel.app"], 
+    credentials: true, 
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
   })
 );
 

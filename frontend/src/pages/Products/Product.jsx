@@ -9,7 +9,7 @@ const Product = ({ product }) => {
         <img
           src={
             product.productImage
-              ? `https://e-shop-backend-ep6p.onrender.com/${product.productImage.replace(
+              ? `https://e-shopbackend-bnov.onrender.com/${product.productImage.replace(
                   /\\/g,
                   "/"
                 )}`

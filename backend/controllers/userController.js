@@ -161,19 +161,23 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
 
     if (req.file) {
       if (user.image) {
-        const imagePath = path.join("backend\\uploads", user.image);
-        const existingImagePath = imagePath.replace("backend\\uploads\\", "");
-
-        fs.unlink(existingImagePath, (err) => {
-          if (err) {
-            console.error("Failed to delete existing image:", err);
-          } else {
-            console.log("Successfully deleted existing image:", existingImagePath);
-          }
-        });
+        const absoluteImagePath = path.join(__dirname, "..", "..", user.image);
+        if (fs.existsSync(absoluteImagePath)) {
+          fs.unlink(absoluteImagePath, (err) => {
+            if (err) {
+              console.error("Failed to delete existing image:", err);
+            } else {
+              console.log("Successfully deleted existing image");
+            }
+          });
+        } else {
+          console.log("Image file does not exist:", absoluteImagePath);
+        }
       }
       user.image = req.file.path;
+      console.log("New Image Path:", req.file.path);
     }
+    
 
     if (req.body.password) {
       const pwd = req.body.password;

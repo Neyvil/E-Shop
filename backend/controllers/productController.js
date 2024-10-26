@@ -272,7 +272,6 @@ const removeProduct = asyncHandler(async (req, res) => {
       // Separate the folder path and the file name
       const imageFileName = basename(productImagePath); // 'productImage-XXXX.jpg'
 
-      // Construct the absolute path for the 'uploads/products' folder outside of 'backend'
       const absoluteFolderPath = join(
         __dirname,
         "..",
