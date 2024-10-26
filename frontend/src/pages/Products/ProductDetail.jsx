@@ -12,7 +12,6 @@ import { Box, Clock, ShoppingCart, Star, Store } from "lucide-react";
 import moment from "moment";
 import HeartIcon from "./HeartIcon.jsx";
 import Default from "../../image/defaultProductImage.png";
-import Ratings from "./Ratings.jsx";
 import { addToCart } from "../../redux/features/cart/cartSlice.js";
 import ProductTabs from "./ProductTabs.jsx";
 
@@ -86,7 +85,7 @@ const ProductDetail = () => {
               <img
                 src={
                   product.productImage
-                    ? `https://e-shop-backend-ep6p.onrender.com/${product.productImage.replace(
+                    ? `https://e-shopbackend-bnov.onrender.com/${product.productImage.replace(
                         /\\/g,
                         "/"
                       )}`

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link , useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { addToCart } from "../../redux/features/cart/cartSlice";
 
@@ -8,19 +8,21 @@ import HeartIcon from "./HeartIcon";
 import { ShoppingCart, Eye } from "lucide-react";
 
 const ProductCard = ({ p }) => {
-  
-  
-  
-
   return (
-    <Link to={`/product/${p._id}`} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl">
+    <Link
+      to={`/product/${p._id}`}
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl"
+    >
       <div className="relative group">
         <Link to={`/product/${p._id}`}>
           <img
             className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
             src={
               p.productImage
-                ? `https://e-shopbackend-bnov.onrender.com/${p.productImage.replace(/\\/g, "/")}`
+                ? `https://e-shopbackend-bnov.onrender.com/${p.productImage.replace(
+                    /\\/g,
+                    "/"
+                  )}`
                 : Default
             }
             alt={p.name}
@@ -33,7 +35,6 @@ const ProductCard = ({ p }) => {
           >
             <Eye size={20} />
           </Link>
-          
         </div>
         <div className="absolute top-2 right-2">
           <HeartIcon product={p} />

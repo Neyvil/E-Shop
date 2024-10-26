@@ -421,7 +421,7 @@ const UpdateProduct = () => {
                       <img
                         src={imagePreview}
                         alt="Product Preview"
-                        className="w-full h-full object-contain"
+                        className="w-32 h-32 sm:w-48 sm:h-48 object-cover mb-4"
                       />
                     ) : (
                       <>
