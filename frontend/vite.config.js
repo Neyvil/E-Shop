@@ -6,10 +6,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": {
+      "/api/": {
         target: "https://e-shopbackend-bnov.onrender.com",
         changeOrigin: true, // Ensure the host header is adjusted to the target
-        rewrite: (path) => path.replace(/^\/api/, ""), // Remove "/api" prefix when sending to the backend
+        rewrite: (path) => path.replace(/^\/api^\//, ""), // Remove "/api" prefix when sending to the backend
       },
     },
   },
