@@ -15,10 +15,13 @@ const port = process.env.PORT || 5000;
 connectDB();
 
 const app = express();
+
+// CORS configuration
 app.use(
   cors({
-    origin: ["https://e-shopfrontend-2sdv0m6ji-neyvils-projects.vercel.app"], // Replace with your deployed frontend URL
-    credentials: true, // Allows cookies to be sent with requests
+    origin: ["https://e-shopfrontend-2sdv0m6ji-neyvils-projects.vercel.app"], // Update with your deployed frontend URL
+    credentials: true, // Allows sending cookies with requests
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed HTTP methods
   })
 );
 
@@ -27,18 +30,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Serve static files from the 'uploads' directory
-app.use('/backend/uploads', express.static('backend/uploads'));
+app.use('/backend/uploads', express.static(path.join(path.resolve(), 'backend/uploads')));
 
-app.use(
-  "/uploads/products",
-  express.static(path.join(path.resolve(), "/uploads/products"))
-);
-
+// API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/products", productRoute);
 app.use("/api/orders", orderRoute);
-
-
 
 app.listen(port, () => console.log(`Server running on port: ${port}`));
