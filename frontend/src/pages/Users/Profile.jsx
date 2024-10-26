@@ -35,11 +35,11 @@ const Profile = () => {
   useEffect(() => {
     if (currentProfileData) {
       if (currentProfileData.image) {
-        const imgstr = `https://e-shopbackend-bnov.onrender.com/${currentProfileData.image.replace(
+
+        setProfilePic(`https://e-shopbackend-bnov.onrender.com/${currentProfileData.image.replace(
           /\\/g,
           "/"
-        )}`;
-        setProfilePic(imgstr);
+        )}`);
         console.log(currentProfileData.image)
       }
       setUsername(currentProfileData.username);
