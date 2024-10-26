@@ -1,6 +1,11 @@
-export const BASE_URL = "";
-export const USERS_URL = "/api/users";
-export const CATEGORY_URL="/api/category"
-export const PRODUCT_URL="/api/products"
-export const ORDERS_URL = "/api/orders";
-export const PAYPAL_URL = "/api/config/paypal";
+// constants.js
+export const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://e-shopbackend-bnov.onrender.com"
+    : ""; // In development, use proxy in Vite
+
+export const USERS_URL = `${BASE_URL}/api/users`;
+export const CATEGORY_URL = `${BASE_URL}/api/category`;
+export const PRODUCT_URL = `${BASE_URL}/api/products`;
+export const ORDERS_URL = `${BASE_URL}/api/orders`;
+export const PAYPAL_URL = `${BASE_URL}/api/config/paypal`;
