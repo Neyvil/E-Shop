@@ -32,6 +32,11 @@ app.use(cookieParser());
 // Serve static files from the 'uploads' directory
 app.use('/backend/uploads', express.static(path.join(path.resolve(), 'backend/uploads')));
 
+app.use(
+  "/backend/uploads/products",
+  express.static(path.join(path.resolve(), "backend/uploads/products"))
+);
+
 // API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/category", categoryRoutes);
