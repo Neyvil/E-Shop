@@ -23,7 +23,12 @@ const port = process.env.PORT || 5000;
 connectDB();
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://e-shopfrontend-2sdv0m6ji-neyvils-projects.vercel.app"], // Replace with your deployed frontend URL
+    credentials: true, // Allows cookies to be sent with requests
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -7,6 +7,7 @@ import { CloudUpload, ChevronDown, ChevronRight } from "lucide-react";
 import Loader from "../../components/Loader";
 import AdminMenu from "./AdminMenu";
 
+
 const ProductsList = () => {
   const [name, setName] = useState("");
   const [productImage, setProductImage] = useState(null);
