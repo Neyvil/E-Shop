@@ -4,6 +4,10 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs/dist/bcrypt.js";
 import fs from "fs";
 import createToken from "../utils/createToken.js";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /// Register a new user (SuperAdmin or User)
 const createUser = asyncHandler(async (req, res) => {

@@ -8,7 +8,7 @@ export default defineConfig({
     proxy: {
       "/api/": {
         target: "https://e-shopbackend-bnov.onrender.com",
-        changeOrigin: true, // Adjusts the host header to the targe
+        changeOrigin: true, // Ensure the host header is adjusted to the target
       },
     },
   },
