@@ -35,7 +35,7 @@ app.use('/backend/uploads', express.static('backend/uploads'));
 
 app.use(
   "/backend/uploads/products",
-  express.static(path.join(path.resolve(), "backend/uploads/products"))
+  express.static("backend/uploads/products")
 );
 
 // API Routes
