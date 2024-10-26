@@ -1,5 +1,7 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
+import multer from "multer";
 import {
   createUser,
   loginUser,
@@ -12,23 +14,29 @@ import {
   userUpdateById,
 } from "../controllers/userController.js";
 import { authenticate, authorizeAdmin, authorizeSuperAdmin } from "../middlewares/authMiddleware.js";
-import multer from "multer";
 
 const router = express.Router();
 
+// Ensure 'backend/uploads' directory exists
+const uploadDir = path.join(path.resolve(), "backend/uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const destination = "backend/uploads/"; // Relative path
-    cb(null, destination);
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const extname = path.extname(file.originalname);
     const filename = `${file.fieldname}-${Date.now()}${extname}`;
-    console.log("Generated Filename:", filename); // Log the generated filename
+    console.log("Generated Filename:", filename);
     cb(null, filename);
   },
 });
 
+// File filter to allow only images
 const fileFilter = (req, file, cb) => {
   const filetypes = /jpe?g|png|webp/;
   const mimetypes = /image\/jpe?g|image\/png|image\/webp/;
@@ -42,30 +50,24 @@ const fileFilter = (req, file, cb) => {
     cb(new Error("Images only"), false);
   }
 };
+
 const upload = multer({ storage, fileFilter });
 
-// Route to register and list all users
-// getAllUsers now receives the role from req.user and handles role-based user retrieval
-router
-  .route("/")
+// Routes
+router.route("/")
   .post(createUser)
-  .get(authenticate, getAllUsers);  // Removed authorizeAdmin because the role filtering happens in the controller
+  .get(authenticate, getAllUsers);
 
-// Authentication routes
 router.post("/auth", loginUser);
 router.post("/logout", logoutCurrentUser);
 
-// Route to manage the current user's profile
-router
-  .route("/profile")
+router.route("/profile")
   .get(authenticate, getCurrentUserProfile)
   .put(authenticate, upload.single("profileImage"), UpdateCurrentUserProfile);
 
-// Routes for managing users by ID
-router
-  .route("/:id")
-  .delete(authenticate, deleteUserById) // Admins can't delete SuperAdmin
-  .get(authenticate, authorizeAdmin, getUserById) // Admins can fetch only users
-  .put(authenticate, authorizeSuperAdmin, userUpdateById); // SuperAdmin can update roles
+router.route("/:id")
+  .delete(authenticate, deleteUserById)
+  .get(authenticate, authorizeAdmin, getUserById)
+  .put(authenticate, authorizeSuperAdmin, userUpdateById);
 
 export default router;
