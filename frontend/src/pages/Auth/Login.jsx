@@ -35,7 +35,7 @@ const Login = () => {
       dispatch(setCredentials({ ...res }));
       addToast("success", "Welcome back! You've successfully logged in.");
     } catch (error) {
-      addToast("error", error.data.message || "Login failed. Please try again.");
+      addToast("error","Login failed. Please try again.");
     }
   };
 
