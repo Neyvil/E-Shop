@@ -21,7 +21,6 @@ app.use(
   cors({
     origin: ["https://e-shop-frontend-f1803luwb-neyvils-projects.vercel.app"], 
     credentials: true, 
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
   })
 );
 

@@ -8,8 +8,8 @@ export default defineConfig({
     proxy: {
       "/api/": {
         target: "https://e-shopbackend-bnov.onrender.com",
-        changeOrigin: true, // Ensure the host header is adjusted to the target
-        rewrite: (path) => path.replace(/^\/api^\//, ""), // Remove "/api" prefix when sending to the backend
+        changeOrigin: true, // Adjusts the host header to the target
+        rewrite: (path) => path.replace(/^\/api\//, ""), // Correctly removes the "/api/" prefix when forwarding requests
       },
     },
   },
