@@ -161,14 +161,13 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
 
     if (req.file) {
       if (user.image) {
-        const imagePath = path.join("backend\\uploads", user.image);
-        const existingImagePath = imagePath.replace("backend\\uploads\\", "");
+        const userImagePath=user.image
 
-        fs.unlink(existingImagePath, (err) => {
+        fs.unlink(user.image, (err) => {
           if (err) {
             console.error("Failed to delete existing image:", err);
           } else {
-            console.log("Successfully deleted existing image:", existingImagePath);
+            console.log("Successfully deleted existing image:", userImagePath);
           }
         });
       }
