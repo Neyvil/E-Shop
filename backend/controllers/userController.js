@@ -166,70 +166,79 @@ const getCurrentUserProfile = asyncHandler(async (req, res) => {
 
 // Update current user profile
 const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
+  // 1. Find user using authenticated user's ID
   const user = await User.findById(req.user._id);
 
-  if (user) {
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  try {
+    // 2. Update basic info
     user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
-    user.role = user.role;
+    // Note: role shouldn't typically be updated in a profile update endpoint
 
-    let imageUrl = user.image;
-    let cloudinaryId = user.cloudinary_id;
-
-    // If new image is uploaded
+    // 3. Handle image upload
     if (req.file) {
-      // Delete old image from Cloudinary
-      if (user.cloudinary_id) {
-        await deleteFromCloudinary(user.cloudinary_id);
-      }
+      try {
+        // Delete old image if exists
+        if (user.cloudinary_id) {
+          await deleteFromCloudinary(user.cloudinary_id);
+        }
 
-      // Upload new image
-      const uploadResult = await uploadToCloudinary(req.file);
-      imageUrl = uploadResult.url;
-      cloudinaryId = uploadResult.public_id;
+        // Upload new image
+        const uploadResult = await uploadToCloudinary(req.file);
+        user.image = uploadResult.url;
+        user.cloudinary_id = uploadResult.public_id;
+      } catch (error) {
+        return res.status(400).json({ 
+          message: "Error uploading image", 
+          error: error.message 
+        });
+      }
     }
 
+    // 4. Handle password update
     if (req.body.password) {
       const pwd = req.body.password;
-
+      
       const validatePassword = (pwd) => {
-        if (pwd.length < 8 || pwd.length > 12) return false;
-        if (!/[A-Z]/.test(pwd)) return false;
-        if (!/[a-z]/.test(pwd)) return false;
-        if (!/\d/.test(pwd)) return false;
-        if (!/[!@#$%^&*()_+=-{};:"<>,./?]/.test(pwd)) return false;
-        return true;
+        return pwd.length >= 8 && 
+               pwd.length <= 12 && 
+               /[A-Z]/.test(pwd) && 
+               /[a-z]/.test(pwd) && 
+               /\d/.test(pwd) && 
+               /[!@#$%^&*()_+=-{};:"<>,./?]/.test(pwd);
       };
 
       if (!validatePassword(pwd)) {
-        return res.status(400).json({ message: "Password is invalid !!" });
+        return res.status(400).json({ 
+          message: "Password must be 8-12 characters and include uppercase, lowercase, number, and special character" 
+        });
       }
 
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(req.body.password, salt);
-      user.password = hashedPassword;
+      user.password = await bcrypt.hash(pwd, salt);
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      {
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        image: imageUrl,
-        cloudinary_id: cloudinaryId,
-      },
-      { new: true }
-    );
+    // 5. Save the updated user
+    const updatedUser = await user.save();
+
+    // 6. Send response
     res.json({
       _id: updatedUser._id,
       username: updatedUser.username,
       email: updatedUser.email,
       role: updatedUser.role,
-      image: updatedUser.image,
+      image: updatedUser.image
     });
-  } else {
-    return res.status(404).json({ message: "User not found" });
+
+  } catch (error) {
+    res.status(400).json({ 
+      message: "Error updating profile", 
+      error: error.message 
+    });
   }
 });
 
