@@ -5,7 +5,6 @@ import {
 } from "../utils/cloudinaryUpload.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs/dist/bcrypt.js";
-import fs from "fs";
 import createToken from "../utils/createToken.js";
 
 /// Register a new user (SuperAdmin or User)
@@ -174,14 +173,14 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
     user.email = req.body.email || user.email;
     user.role = user.role;
 
-    let imageUrl = product.image;
-    let cloudinaryId = product.cloudinary_id;
+    let imageUrl = user.image;
+    let cloudinaryId = user.cloudinary_id;
 
     // If new image is uploaded
     if (req.file) {
       // Delete old image from Cloudinary
-      if (product.cloudinary_id) {
-        await deleteFromCloudinary(product.cloudinary_id);
+      if (user.cloudinary_id) {
+        await deleteFromCloudinary(user.cloudinary_id);
       }
 
       // Upload new image
