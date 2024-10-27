@@ -1,10 +1,13 @@
 // utils/cloudinaryUpload.js
-import cloudinary from "../config/cloudinary.js";
+import { v2 as cloudinary } from 'cloudinary';
+import dotenv from 'dotenv';
 import fs from "fs";
+
+dotenv.config();
 
 export const uploadToCloudinary = async (file) => {
   try {
-    const result = await cloudinary.uploader.upload(file.path, {
+    const result = await configureCloudinary.uploader.upload(file.path, {
       folder: "e-shop",
       use_filename: true,
       unique_filename: true,
@@ -29,7 +32,7 @@ export const uploadToCloudinary = async (file) => {
 export const deleteFromCloudinary = async (public_id) => {
   try {
     if (!public_id) return;
-    await cloudinary.uploader.destroy(public_id);
+    await configureCloudinary.uploader.destroy(public_id);
   } catch (error) {
     throw new Error(`Failed to delete from Cloudinary: ${error.message}`);
   }
