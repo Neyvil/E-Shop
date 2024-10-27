@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema(
       unique: true,
     },
 
-    image: {
+    profileImage: {
       type: String,
     },
 
