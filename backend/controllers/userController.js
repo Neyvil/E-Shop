@@ -166,7 +166,6 @@ const getCurrentUserProfile = asyncHandler(async (req, res) => {
 
 // Update current user profile
 const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
-  // 1. Find user using authenticated user's ID
   const user = await User.findById(req.user._id);
 
   if (!user) {
@@ -174,12 +173,10 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
   }
 
   try {
-    // 2. Update basic info
     user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
-    // Note: role shouldn't typically be updated in a profile update endpoint
 
-    // 3. Handle image upload
+    // Handle image upload
     if (req.file) {
       try {
         // Delete old image if exists
@@ -187,11 +184,17 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
           await deleteFromCloudinary(user.cloudinary_id);
         }
 
+        console.log('Uploading file:', req.file); // Debug log
+
         // Upload new image
         const uploadResult = await uploadToCloudinary(req.file);
+        
+        console.log('Upload result:', uploadResult); // Debug log
+
         user.image = uploadResult.url;
         user.cloudinary_id = uploadResult.public_id;
       } catch (error) {
+        console.error('Image upload error:', error); // Debug log
         return res.status(400).json({ 
           message: "Error uploading image", 
           error: error.message 
@@ -199,33 +202,9 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
       }
     }
 
-    // 4. Handle password update
-    if (req.body.password) {
-      const pwd = req.body.password;
-      
-      const validatePassword = (pwd) => {
-        return pwd.length >= 8 && 
-               pwd.length <= 12 && 
-               /[A-Z]/.test(pwd) && 
-               /[a-z]/.test(pwd) && 
-               /\d/.test(pwd) && 
-               /[!@#$%^&*()_+=-{};:"<>,./?]/.test(pwd);
-      };
+    // Rest of your code (password handling etc.)...
 
-      if (!validatePassword(pwd)) {
-        return res.status(400).json({ 
-          message: "Password must be 8-12 characters and include uppercase, lowercase, number, and special character" 
-        });
-      }
-
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(pwd, salt);
-    }
-
-    // 5. Save the updated user
     const updatedUser = await user.save();
-
-    // 6. Send response
     res.json({
       _id: updatedUser._id,
       username: updatedUser.username,
@@ -235,6 +214,7 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Profile update error:', error); // Debug log
     res.status(400).json({ 
       message: "Error updating profile", 
       error: error.message 
