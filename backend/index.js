@@ -8,13 +8,13 @@ import userRoutes from "./routes/userRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoute from "./routes/productRoute.js";
 import orderRoute from "./routes/orderRoutes.js";
-import cloudinary from "./config/cloudinary.js";
+import configureCloudinary from "./config/cloudinary.js";
 
 dotenv.config();
 const port = process.env.PORT || 5000;
 
 connectDB();
-cloudinary();
+configureCloudinary();
 
 const app = express();
 
