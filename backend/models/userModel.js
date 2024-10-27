@@ -12,6 +12,11 @@ const userSchema = mongoose.Schema(
       type: String,
     },
 
+    cloudinary_id: {
+    type: String,
+    
+  },
+
     email: {
       type: String,
       required: true,

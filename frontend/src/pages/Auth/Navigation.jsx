@@ -49,10 +49,7 @@ const Navigation = () => {
 
   useEffect(() => {
     if (currentProfileData && currentProfileData.image) {
-      const imgstr = `https://e-shopbackend-bnov.onrender.com/${currentProfileData.image.replace(
-        /\\/g,
-        "/"
-      )}`;
+      const imgstr = `https://e-shopbackend-bnov.onrender.com${currentProfileData.image}`;
       setProfilePic(imgstr || img);
     }
   }, [currentProfileData]);

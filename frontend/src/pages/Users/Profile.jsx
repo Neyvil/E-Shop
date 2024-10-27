@@ -36,10 +36,7 @@ const Profile = () => {
     if (currentProfileData) {
       if (currentProfileData.image) {
 
-        setProfilePic(`https://e-shopbackend-bnov.onrender.com/${currentProfileData.image.replace(
-          /\\/g,
-          "/"
-        )}`);
+        setProfilePic(`https://e-shopbackend-bnov.onrender.com${currentProfileData.image}`);
         console.log(currentProfileData.image)
       }
       setUsername(currentProfileData.username);

@@ -1,5 +1,8 @@
 import User from "../models/userModel.js";
-import path from "path";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinaryUpload.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs/dist/bcrypt.js";
 import fs from "fs";
@@ -14,7 +17,9 @@ const createUser = asyncHandler(async (req, res) => {
   }
 
   if (role !== "superadmin" && role !== "user") {
-    return res.status(400).json({ message: "Invalid role. Only 'superadmin' and 'user' are allowed." });
+    return res.status(400).json({
+      message: "Invalid role. Only 'superadmin' and 'user' are allowed.",
+    });
   }
 
   const validateEmail = (email) => {
@@ -46,12 +51,19 @@ const createUser = asyncHandler(async (req, res) => {
     const storedSuperAdmin = await User.findOne({ role: "superadmin" });
 
     if (!storedSuperAdmin) {
-      return res.status(500).json({ message: "SuperAdmin registration is not allowed at this time." });
+      return res.status(500).json({
+        message: "SuperAdmin registration is not allowed at this time.",
+      });
     }
 
-    const isAnswerCorrect = await bcrypt.compare(securityAnswer, storedSuperAdmin.securityAnswer);
+    const isAnswerCorrect = await bcrypt.compare(
+      securityAnswer,
+      storedSuperAdmin.securityAnswer
+    );
     if (!isAnswerCorrect) {
-      return res.status(403).json({ message: "Incorrect security answer. SuperAdmin registration denied." });
+      return res.status(403).json({
+        message: "Incorrect security answer. SuperAdmin registration denied.",
+      });
     }
   }
 
@@ -87,7 +99,10 @@ const loginUser = asyncHandler(async (req, res) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    const isPasswordMatch = await bcrypt.compare(password, existingUser.password);
+    const isPasswordMatch = await bcrypt.compare(
+      password,
+      existingUser.password
+    );
 
     if (isPasswordMatch) {
       createToken(res, existingUser._id);
@@ -126,7 +141,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
   if (currentUserRole === "superadmin") {
     users = await User.find({});
   } else if (currentUserRole === "admin") {
-    users = await User.find({ role:  { $in: ["user", "admin"] } });
+    users = await User.find({ role: { $in: ["user", "admin"] } });
   } else {
     return res.status(403).json({ message: "Access Denied" });
   }
@@ -157,21 +172,22 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
   if (user) {
     user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
-    user.role=user.role;
+    user.role = user.role;
 
+    let imageUrl = product.image;
+    let cloudinaryId = product.cloudinary_id;
+
+    // If new image is uploaded
     if (req.file) {
-      if (user.image) {
-        const userImagePath=user.image
-
-        fs.unlink(user.image, (err) => {
-          if (err) {
-            console.error("Failed to delete existing image:", err);
-          } else {
-            console.log("Successfully deleted existing image:", userImagePath);
-          }
-        });
+      // Delete old image from Cloudinary
+      if (product.cloudinary_id) {
+        await deleteFromCloudinary(product.cloudinary_id);
       }
-      user.image = req.file.path;
+
+      // Upload new image
+      const uploadResult = await uploadToCloudinary(req.file);
+      imageUrl = uploadResult.url;
+      cloudinaryId = uploadResult.public_id;
     }
 
     if (req.body.password) {
@@ -195,13 +211,22 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
       user.password = hashedPassword;
     }
 
-    const updatedUser = await user.save();
-
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        image: imageUrl,
+        cloudinary_id: cloudinaryId,
+      },
+      { new: true }
+    );
     res.json({
       _id: updatedUser._id,
       username: updatedUser.username,
       email: updatedUser.email,
-      role:updatedUser.role,
+      role: updatedUser.role,
       image: updatedUser.image,
     });
   } else {
@@ -220,25 +245,32 @@ const deleteUserById = asyncHandler(async (req, res) => {
   const currentUserRole = req.user.role;
   const targetUserRole = user.role;
 
-  
   if (currentUserRole === "admin" && targetUserRole === "superadmin") {
-    return res.status(403).json({ message: "Admins are not allowed to delete SuperAdmins" });
+    return res
+      .status(403)
+      .json({ message: "Admins are not allowed to delete SuperAdmins" });
   }
   if (currentUserRole === "admin" && targetUserRole === "admin") {
-    return res.status(403).json({ message: "Admins are not allowed to delete other Admins" });
+    return res
+      .status(403)
+      .json({ message: "Admins are not allowed to delete other Admins" });
   }
-  
+
   if (
     currentUserRole === "superadmin" ||
-    (currentUserRole === "admin" && targetUserRole !== "admin" && targetUserRole !== "superadmin")
+    (currentUserRole === "admin" &&
+      targetUserRole !== "admin" &&
+      targetUserRole !== "superadmin")
   ) {
+    if (user.cloudinary_id) {
+      await deleteFromCloudinary(user.cloudinary_id);
+    }
     await User.deleteOne({ _id: user._id });
     return res.json({ message: "User deletion successful 🚮" });
   }
 
   return res.status(403).json({ message: "Unauthorized to delete this user" });
 });
-
 
 // Fetch a user by ID
 const getUserById = asyncHandler(async (req, res) => {
@@ -251,9 +283,13 @@ const getUserById = asyncHandler(async (req, res) => {
   const { role } = req.user;
 
   if (role === "admin" && user.role !== "user") {
-    return res.status(403).json({ message: "Admins can only access user profiles" });
+    return res
+      .status(403)
+      .json({ message: "Admins can only access user profiles" });
   } else if (role === "superadmin" && user.role === "superadmin") {
-    return res.status(403).json({ message: "SuperAdmin cannot access other SuperAdmin profiles" });
+    return res
+      .status(403)
+      .json({ message: "SuperAdmin cannot access other SuperAdmin profiles" });
   } else {
     res.json(user);
   }
@@ -275,10 +311,15 @@ const userUpdateById = asyncHandler(async (req, res) => {
       if (req.body.role === "admin" || req.body.role === "user") {
         user.role = req.body.role;
       } else {
-        return res.status(400).json({ message: "Invalid role. Only 'admin' and 'user' roles can be assigned by SuperAdmin." });
+        return res.status(400).json({
+          message:
+            "Invalid role. Only 'admin' and 'user' roles can be assigned by SuperAdmin.",
+        });
       }
     } else if (req.body.role) {
-      return res.status(403).json({ message: "Only SuperAdmin can change user roles." });
+      return res
+        .status(403)
+        .json({ message: "Only SuperAdmin can change user roles." });
     }
 
     const updatedUser = await user.save();

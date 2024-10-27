@@ -28,15 +28,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Serve static files from the 'uploads' directory
-app.use('/backend/uploads', express.static('backend/uploads'));
-;
-
-app.use(
-  "/backend/uploads/products",
-  express.static("backend/uploads/products")
-);
-
 // API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/category", categoryRoutes);

@@ -19,6 +19,10 @@ const productSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
     productImage: { type: String, required: true },
+    cloudinary_id: {
+    type: String,
+    required: true
+  },
     brand: { type: String, required: true },
     category: { type: ObjectId, ref: "Category", required: true },
     selectedCategoryPath: [
