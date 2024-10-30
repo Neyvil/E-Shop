@@ -23,7 +23,7 @@ const Profile = () => {
 
   const addToast = useToast();
   const dispatch = useDispatch();
-  const { userInfo } = useSelector((state) => state.auth);
+  
   const [updateProfile, { isLoading: isUpdating }] = useProfileMutation();
 
   const [profilePic, setProfilePic] = useState(img);
@@ -38,7 +38,6 @@ const Profile = () => {
       if (currentProfileData.profileImage) {
 
         setProfilePic(currentProfileData.profileImage);
-        console.log(currentProfileData.profileImage)
       }
       setUsername(currentProfileData.username);
     

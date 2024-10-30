@@ -1,13 +1,12 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
 import Category from "../models/categoryModel.js";
-import fs from "fs";
 
-import { fileURLToPath } from "url";
-import { dirname, join, basename, dirname as getDirname } from "path";
-import path from "path"
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "../utils/cloudinaryUpload.js";
+
 
 const addProduct = async (req, res) => {
   try {
@@ -39,16 +38,15 @@ const addProduct = async (req, res) => {
         .json({ error: "All fields including product image are required" });
     }
 
-    
-    const productImage = req.file.path;
+    const uploadResult = await uploadToCloudinary(req.file);
+    const productImage = uploadResult.url;
+    const cloudinary_id = uploadResult.public_id;
 
-    
     const category = await Category.findById(categoryId);
     if (!category) {
       return res.status(400).json({ error: "Category not found" });
     }
 
-    
     const getAncestorCategories = async (cat) => {
       const ancestors = [];
       let currentCat = cat;
@@ -62,7 +60,6 @@ const addProduct = async (req, res) => {
     const ancestorCategories = await getAncestorCategories(category);
     const allCategories = [category, ...ancestorCategories];
 
-    
     let productData = {
       name,
       category: categoryId,
@@ -70,10 +67,10 @@ const addProduct = async (req, res) => {
       brand,
       price,
       productImage,
+      cloudinary_id,
       countInStock,
     };
 
-   
     const isClothing = allCategories.some(
       (cat) => cat.name.toLowerCase() === "clothing"
     );
@@ -84,7 +81,6 @@ const addProduct = async (req, res) => {
       (cat) => cat.name.toLowerCase() === "furniture"
     );
 
-    
     if (isClothing) {
       productData.clothingAttributes = {
         gender,
@@ -103,7 +99,6 @@ const addProduct = async (req, res) => {
 
     const product = new Product(productData);
 
-    
     await product.save();
 
     res.status(201).json({
@@ -140,30 +135,19 @@ const updateProduct = asyncHandler(async (req, res) => {
 
     // Handle product image replacement
     if (req.file) {
-     
-      if (product.productImage) {
-       
-        const absoluteImagePath = path.join(__dirname, "..", "..", product.productImage);
-
-        
-        if (fs.existsSync(absoluteImagePath)) {
-          fs.unlink(absoluteImagePath, (err) => {
-            if (err) {
-              console.error("Failed to delete existing image:", err);
-            } else {
-              console.log("Successfully deleted existing image");
-            }
-          });
-        } else {
-          console.log("Image file does not exist:", absoluteImagePath);
+      try {
+        if (product.cloudinary_id) {
+          await deleteFromCloudinary(product.cloudinary_id);
         }
+        const uploadResult = await uploadToCloudinary(req.file);
+
+        product.productImage = uploadResult.url;
+        product.cloudinary_id = uploadResult.public_id;
+      } catch (error) {
+        console.error(error);
       }
- 
-      product.productImage = req.file.path; 
-      console.log("New Image Path:", req.file.path);
     }
 
-    
     Object.assign(product, {
       name,
       description,
@@ -172,7 +156,6 @@ const updateProduct = asyncHandler(async (req, res) => {
       countInStock,
     });
 
-    
     const getAncestorCategories = async (catId) => {
       const ancestors = [];
       let currentCat = await Category.findById(catId);
@@ -183,7 +166,6 @@ const updateProduct = asyncHandler(async (req, res) => {
       return ancestors;
     };
 
-    
     if (categoryId && categoryId !== product.category.toString()) {
       const newCategory = await Category.findById(categoryId);
       if (!newCategory) {
@@ -194,7 +176,6 @@ const updateProduct = asyncHandler(async (req, res) => {
       const ancestorCategories = await getAncestorCategories(categoryId);
       const allCategories = [newCategory, ...ancestorCategories];
 
-      
       product.clothingAttributes = undefined;
       product.electronicsAttributes = undefined;
       product.furnitureAttributes = undefined;
@@ -217,7 +198,6 @@ const updateProduct = asyncHandler(async (req, res) => {
         product.furnitureAttributes = { material };
       }
     } else {
-      
       const ancestorCategories = await getAncestorCategories(product.category);
       const allCategories = [
         await Category.findById(product.category),
@@ -256,59 +236,21 @@ const updateProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// ******* Heavy mistake done here in path so i carefully commented every step ***** remember this
+
 const removeProduct = asyncHandler(async (req, res) => {
   try {
-    // Find the product by ID
+
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    // Check if product has an associated image to delete
-    if (product.productImage) {
-      const productImagePath = product.productImage; // 'uploads\\products\\productImage-XXXX.jpg'
-
-      // Separate the folder path and the file name
-      const imageFileName = basename(productImagePath); // 'productImage-XXXX.jpg'
-
-      const absoluteFolderPath = join(
-        __dirname,
-        "..",
-        "uploads",
-        "products"
-      ); // D:\COLLEGE NABAJYOTI\E-Shop\uploads\products
-      console.log(absoluteFolderPath)
-      const absoluteImagePath = join(absoluteFolderPath, imageFileName); // Absolute path to the image
-
-      // Check if the folder exists
-      if (fs.existsSync(absoluteFolderPath)) {
-        console.log("Folder exists:", absoluteFolderPath);
-
-        // Check if the image file exists before deleting
-        if (fs.existsSync(absoluteImagePath)) {
-          console.log(
-            "Image file exists, attempting to delete:",
-            absoluteImagePath
-          );
-
-          // Delete the image file
-          fs.unlink(absoluteImagePath, (err) => {
-            if (err) {
-              console.error("Failed to delete image:", err);
-            } else {
-              console.log("Successfully deleted image:", absoluteImagePath);
-            }
-          });
-        } else {
-          console.error("Image file does not exist:", absoluteImagePath);
-        }
-      } else {
-        console.error("Folder does not exist:", absoluteFolderPath);
-      }
+    if (product.cloudinary_id) {
+      await deleteFromCloudinary(product.cloudinary_id);
+    } else {
+      console.error("Image file deletion error");
     }
 
-    // Remove the product from the database
     await Product.deleteOne({ _id: req.params.id });
     res.json({ message: "Product successfully deleted", product });
   } catch (error) {
@@ -467,7 +409,7 @@ const filterProducts = asyncHandler(async (req, res) => {
     }
 
     if (gender && gender !== "") {
-      query['clothingAttributes.gender'] = gender.toLowerCase();
+      query["clothingAttributes.gender"] = gender.toLowerCase();
     }
 
     if (brand) {
@@ -486,11 +428,11 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
       .populate({
-        path: 'category',
+        path: "category",
         populate: {
-          path: 'parentCategory',
-          model: 'Category'
-        }
+          path: "parentCategory",
+          model: "Category",
+        },
       })
       .sort({ createdAt: -1 });
 
@@ -500,8 +442,10 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
 
     res.json(products);
   } catch (error) {
-    console.error('Error in fetchAllProducts:', error);
-    res.status(500).json({ error: "Internal server Error", details: error.message });
+    console.error("Error in fetchAllProducts:", error);
+    res
+      .status(500)
+      .json({ error: "Internal server Error", details: error.message });
   }
 });
 

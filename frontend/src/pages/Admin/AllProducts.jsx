@@ -128,14 +128,7 @@ const AllProducts = () => {
                   >
                     <div className="relative h-48 sm:h-56 group">
                       <img
-                        src={
-                          product.productImage
-                            ? `https://e-shopbackend-bnov.onrender.com/${product.productImage.replace(
-                                /\\/g,
-                                "/"
-                              )}`
-                            : img
-                        }
+                        src={product.productImage ? product.productImage : img}
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />

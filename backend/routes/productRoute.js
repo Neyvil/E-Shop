@@ -18,39 +18,9 @@ import {
   fetchAllProducts,
 } from "../controllers/productController.js";
 
+const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = "backend/uploads/products/";
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const extname = path.extname(file.originalname);
-    const filename = `${file.fieldname}-${Date.now()}${extname}`;
-    console.log("Generated Filename:", filename);
-    cb(null, filename);
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  const filetypes = /jpe?g|png|webp/;
-  const mimetypes = /image\/jpe?g|image\/png|image\/webp/;
-
-  if (
-    filetypes.test(path.extname(file.originalname).toLowerCase()) &&
-    mimetypes.test(file.mimetype)
-  ) {
-    cb(null, true);
-  } else {
-    cb(new Error("Images only"), false);
-  }
-};
-
-const upload = multer({ storage, fileFilter });
 
 // Fetch all products (paginated)
 router.route("/").get(fetchProducts);

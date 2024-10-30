@@ -21,7 +21,6 @@ const productSchema = mongoose.Schema(
     productImage: { type: String, required: true },
     cloudinary_id: {
     type: String,
-    required: true
   },
     brand: { type: String, required: true },
     category: { type: ObjectId, ref: "Category", required: true },

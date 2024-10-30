@@ -48,8 +48,8 @@ const Navigation = () => {
   const { data: currentProfileData } = useCurrentProfileDetailsQuery();
 
   useEffect(() => {
-    if (currentProfileData && currentProfileData.image) {
-      const imgstr = `https://e-shopbackend-bnov.onrender.com${currentProfileData.image}`;
+    if (currentProfileData && currentProfileData.profileImage) {
+      const imgstr = currentProfileData.profileImage;
       setProfilePic(imgstr || img);
     }
   }, [currentProfileData]);

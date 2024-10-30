@@ -85,10 +85,7 @@ const ProductDetail = () => {
               <img
                 src={
                   product.productImage
-                    ? `https://e-shopbackend-bnov.onrender.com/${product.productImage.replace(
-                        /\\/g,
-                        "/"
-                      )}`
+                    ? product.productImage
                     : Default
                 }
                 alt={product.name}

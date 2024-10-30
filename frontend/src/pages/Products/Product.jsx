@@ -7,14 +7,7 @@ const Product = ({ product }) => {
     <div className="w-full sm:w-[20rem] md:w-[30rem] p-3 relative">
       <div className="relative">
         <img
-          src={
-            product.productImage
-              ? `https://e-shopbackend-bnov.onrender.com/${product.productImage.replace(
-                  /\\/g,
-                  "/"
-                )}`
-              : Default
-          }
+          src={product.productImage ? product.productImage : Default}
           alt={product.name}
           className="w-full h-[15rem] sm:w-[20rem] sm:h-[20rem] md:w-[30rem] md:h-[25rem] rounded-lg object-cover"
         />
