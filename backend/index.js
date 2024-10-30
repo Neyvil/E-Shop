@@ -21,8 +21,9 @@ const app = express();
 // CORS configuration
 app.use(
   cors({
-    origin: [""], 
+    origin: ["https://e-shop-frontend-2zn6.onrender.com"], 
     credentials: true, 
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   })
 );
 
