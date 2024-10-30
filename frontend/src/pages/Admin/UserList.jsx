@@ -95,8 +95,8 @@ const UserList = () => {
                     <img
                       className="h-12 w-12 rounded-full object-cover border-2 border-[#ff0066]"
                       src={
-                        user.image
-                          ? `https://e-shop-backend-ep6p.onrender.com/${user.image.replace(/\\/g, "/")}`
+                        user.profileImage
+                          ? user.profileImage
                           : "https://via.placeholder.com/48"
                       }
                       alt={user.username}
