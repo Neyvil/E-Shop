@@ -19,5 +19,5 @@ console.log("Cloudinary initialized ⚡⚡", {
   api_secret: process.env.CLOUDINARY_API_SECRET ? '****' : 'Not set',
 });
 
-// Export configured cloudinary instance
+
 export default cloudinary;

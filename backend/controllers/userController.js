@@ -156,7 +156,7 @@ const getCurrentUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
-      image: user.image,
+      profileImage: user.profileImage,
       role: user.role,
     });
   } else {
@@ -166,6 +166,7 @@ const getCurrentUserProfile = asyncHandler(async (req, res) => {
 
 // Update current user profile
 const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
+  
   const user = await User.findById(req.user._id);
 
   if (!user) {
@@ -173,28 +174,27 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
   }
 
   try {
+    // Update user information
     user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
 
     // Handle image upload
     if (req.file) {
       try {
-        // Delete old image if exists
+        // Delete the old image from Cloudinary if exists
         if (user.cloudinary_id) {
           await deleteFromCloudinary(user.cloudinary_id);
+          
         }
 
-        console.log('Uploading file:', req.file); // Debug log
-
-        // Upload new image
+        // Upload the new image
         const uploadResult = await uploadToCloudinary(req.file);
-        
-        console.log('Upload result:', uploadResult); // Debug log
 
-        user.image = uploadResult.url;
+        // Update user image properties
+        user.profileImage = uploadResult.url;
         user.cloudinary_id = uploadResult.public_id;
       } catch (error) {
-        console.error('Image upload error:', error); // Debug log
+        console.error('Image upload error:', error);
         return res.status(400).json({ 
           message: "Error uploading image", 
           error: error.message 
@@ -202,19 +202,20 @@ const UpdateCurrentUserProfile = asyncHandler(async (req, res) => {
       }
     }
 
-    // Rest of your code (password handling etc.)...
-
+    // Save updated user to the database
     const updatedUser = await user.save();
+
+    // Return updated user data
     res.json({
       _id: updatedUser._id,
       username: updatedUser.username,
       email: updatedUser.email,
       role: updatedUser.role,
-      image: updatedUser.image
+      profileImage: updatedUser.profileImage,
     });
 
   } catch (error) {
-    console.error('Profile update error:', error); // Debug log
+    console.error('Profile update error:', error);
     res.status(400).json({ 
       message: "Error updating profile", 
       error: error.message 

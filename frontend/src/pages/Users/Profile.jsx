@@ -29,15 +29,16 @@ const Profile = () => {
   const [profilePic, setProfilePic] = useState(img);
 
   const { data: currentProfileData, refetch } = useCurrentProfileDetailsQuery();
+  console.log(currentProfileData)
   const passwordRules =
     "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
 
   useEffect(() => {
     if (currentProfileData) {
-      if (currentProfileData.image) {
+      if (currentProfileData.profileImage) {
 
-        setProfilePic(`https://e-shopbackend-bnov.onrender.com${currentProfileData.image}`);
-        console.log(currentProfileData.image)
+        setProfilePic(currentProfileData.profileImage);
+        console.log(currentProfileData.profileImage)
       }
       setUsername(currentProfileData.username);
     
@@ -78,12 +79,8 @@ const Profile = () => {
       const res = await updateProfile(formData).unwrap();
       addToast("success", "Profile updated successfully 🤞");
       dispatch(setCredentials(res));
-      if (res.image) {
-        const updatedImgstr = `https://e-shop-backend-ep6p.onrender.com/${res.image.replace(
-          /\\/g,
-          "/"
-        )}`;
-        setProfilePic(updatedImgstr); // Update profile picture state after upload
+      if (res.profieImage) {
+        setProfilePic(res.profieImage); 
       }
     } catch (error) {
       console.error(error);

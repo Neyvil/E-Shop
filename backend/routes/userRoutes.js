@@ -1,5 +1,5 @@
 import express from "express";
-import upload from '../middlewares/uploadMiddleware.js';
+
 import {
   createUser,
   loginUser,
@@ -12,8 +12,13 @@ import {
   userUpdateById,
 } from "../controllers/userController.js";
 import { authenticate, authorizeAdmin, authorizeSuperAdmin } from "../middlewares/authMiddleware.js";
+import multer from "multer";
 
+
+
+const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
+
 
 // Routes
 router.route("/")
