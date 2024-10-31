@@ -45,13 +45,14 @@ const Navigation = () => {
 
   const [logoutApiCall] = useLogoutMutation();
 
-  const { data: currentProfileData } = useCurrentProfileDetailsQuery();
+  const { data: currentProfileData,refetch } = useCurrentProfileDetailsQuery();
 
   useEffect(() => {
     if (currentProfileData && currentProfileData.profileImage) {
       const imgstr = currentProfileData.profileImage;
       setProfilePic(imgstr || img);
     }
+    refetch();
   }, [currentProfileData]);
 
   useEffect(() => {
@@ -89,111 +90,114 @@ const Navigation = () => {
 
   return (
     <>
-      {/* Mobile Navigation */}
-      <div className="xl:hidden lg:hidden md:block sm:block fixed top-0 left-0 right-0 z-50">
-        <div
-          className={`flex justify-between items-center bg-[#1B1C30] p-4 transition-all duration-300 ${
-            scrolled ? "h-16" : "h-20"
-          }`}
-        >
-          <button className="text-white" onClick={toggleDropdown}>
-            {dropdownOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-          <h1
-            className={`font-bold text-white text-center transition-all duration-300 ${
-              scrolled ? "text-2xl" : "text-4xl"
+      <div className="xl:hidden lg:hidden md:block sm:block h-[64px]">
+        {/* Mobile Navigation */}
+        <div className="xl:hidden lg:hidden md:block sm:block fixed top-0 left-0 right-0 z-50">
+          <div
+            className={`flex justify-between items-center bg-[#1B1C30] p-4 transition-all duration-300 ${
+              scrolled ? "h-16" : "h-20"
             }`}
           >
-            E<span className="text-[#ff0066]">-</span>Shop
-          </h1>
-          <div className="w-6"></div> {/* Placeholder for balance */}
-        </div>
+            <button className="text-white" onClick={toggleDropdown}>
+              {dropdownOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <h1
+              className={`font-bold text-white text-center transition-all duration-300 ${
+                scrolled ? "text-2xl" : "text-4xl"
+              }`}
+            >
+              E<span className="text-[#ff0066]">-</span>Shop
+            </h1>
+            <div className="w-6"></div> {/* Placeholder for balance */}
+          </div>
 
-        {/* Dropdown Menu for Mobile */}
-        <div
-          className={`fixed top-[64px] left-0 w-full bg-[#1B1C30] transition-all duration-300 text-white ease-in-out overflow-y-auto ${
-            dropdownOpen
-              ? "h-[calc(100vh-64px)] opacity-100"
-              : "h-0 opacity-0 pointer-events-none"
-          }`}
-        >
-          <div className="p-4">
-            {userInfo && (
-              <div className="flex items-center mb-6">
-                <img
-                  src={profilePic}
-                  alt="user"
-                  className="w-16 h-16 rounded-full mr-4 border-2 border-[#ff0066]"
-                />
-                <div>
-                  <h2 className="text-white font-semibold">
-                    {userInfo.username.charAt(0).toUpperCase() +
-                      userInfo.username.slice(1)}
-                  </h2>
-                  <div className="text-[#ff0066] font-serif font-semibold flex items-center">
-                    {userInfo.role === "superadmin"
-                      ? "SuperAdmin"
-                      : userInfo.role === "admin"
-                      ? "Administrator"
-                      : "User"}
-                    <ShieldCheck size={16} color="#ff0066" className="ml-1" />
+          {/* Dropdown Menu for Mobile */}
+          <div
+            className={`fixed top-[64px] left-0 w-full bg-[#1B1C30] transition-all duration-300 text-white ease-in-out overflow-y-auto ${
+              dropdownOpen
+                ? "h-[calc(100vh-64px)] opacity-100"
+                : "h-0 opacity-0 pointer-events-none"
+            }`}
+          >
+            <div className="p-4">
+              {userInfo && (
+                <div className="flex items-center mb-6">
+                  <img
+                    src={profilePic}
+                    alt="user"
+                    className="w-16 h-16 rounded-full mr-4 border-2 border-[#ff0066]"
+                  />
+                  <div>
+                    <h2 className="text-white font-semibold">
+                      {userInfo.username.charAt(0).toUpperCase() +
+                        userInfo.username.slice(1)}
+                    </h2>
+                    <div className="text-[#ff0066] font-serif font-semibold flex items-center">
+                      {userInfo.role === "superadmin"
+                        ? "SuperAdmin"
+                        : userInfo.role === "admin"
+                        ? "Administrator"
+                        : "User"}
+                      <ShieldCheck size={16} color="#ff0066" className="ml-1" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <MobileNavItem to="/" icon={House} label="HOME" />
-            {userInfo &&
-              (userInfo.role === "admin" || userInfo.role === "superadmin") && (
+              <MobileNavItem to="/" icon={House} label="HOME" />
+              {userInfo &&
+                (userInfo.role === "admin" ||
+                  userInfo.role === "superadmin") && (
+                  <>
+                    <MobileNavItem
+                      to="/admin/dashboard"
+                      icon={LayoutDashboard}
+                      label="DASHBOARD"
+                    />
+                    <MobileNavItem
+                      to="/admin/orderlist"
+                      icon={Box}
+                      label="ORDERS"
+                    />
+                    <MobileNavItem
+                      to="/admin/categorylist"
+                      icon={List}
+                      label="CATEGORY"
+                    />
+                    <MobileNavItem
+                      to="/admin/allproductslist"
+                      icon={Boxes}
+                      label="PRODUCTS"
+                    />
+                  </>
+                )}
+              <MobileNavItem to="/shop" icon={Store} label="STORE" />
+              <MobileNavItem
+                to="/cart"
+                icon={ShoppingCart}
+                label={`CART (${cartItems.reduce((a, c) => a + c.qty, 0)})`}
+              />
+              <MobileNavItem to="/favourite" icon={Heart} label="FAVOURITE" />
+              <MobileNavItem to="/profile" icon={SquareUser} label="PROFILE" />
+
+              {!userInfo ? (
                 <>
+                  <MobileNavItem to="/login" icon={LogIn} label="Login" />
                   <MobileNavItem
-                    to="/admin/dashboard"
-                    icon={LayoutDashboard}
-                    label="DASHBOARD"
-                  />
-                  <MobileNavItem
-                    to="/admin/orderlist"
-                    icon={Box}
-                    label="ORDERS"
-                  />
-                  <MobileNavItem
-                    to="/admin/categorylist"
-                    icon={List}
-                    label="CATEGORY"
-                  />
-                  <MobileNavItem
-                    to="/admin/allproductslist"
-                    icon={Boxes}
-                    label="PRODUCTS"
+                    to="/register"
+                    icon={CircleUserRound}
+                    label="Register"
                   />
                 </>
-              )}
-            <MobileNavItem to="/shop" icon={Store} label="STORE" />
-            <MobileNavItem
-              to="/cart"
-              icon={ShoppingCart}
-              label={`CART (${cartItems.reduce((a, c) => a + c.qty, 0)})`}
-            />
-            <MobileNavItem to="/favourite" icon={Heart} label="FAVOURITE" />
-            <MobileNavItem to="/profile" icon={SquareUser} label="PROFILE" />
-
-            {!userInfo ? (
-              <>
-                <MobileNavItem to="/login" icon={LogIn} label="Login" />
+              ) : (
                 <MobileNavItem
-                  to="/register"
-                  icon={CircleUserRound}
-                  label="Register"
+                  to="#"
+                  icon={LogOut}
+                  label="Logout"
+                  onClick={logoutHandler}
                 />
-              </>
-            ) : (
-              <MobileNavItem
-                to="#"
-                icon={LogOut}
-                label="Logout"
-                onClick={logoutHandler}
-              />
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -352,6 +356,32 @@ const Navigation = () => {
                       <span className="hidden nav-item-name mt-[1rem]">
                         CATEGORY
                       </span>
+                    </>
+                  )}
+                </NavLink>
+                <NavLink
+                  to="/cart"
+                  className="flex items-center transition-transform transform hover:translate-x-5"
+                >
+                  {({ isActive }) => (
+                    <>
+                      <ShoppingCart
+                        size={26}
+                        className="mr-2 mt-[1rem]"
+                        color={isActive ? "darkviolet" : "#ff0066"}
+                      />
+                      <span className="hidden nav-item-name mt-[1rem]">
+                        CART
+                      </span>
+                      <div className="absolute top-1 ">
+                        {cartItems.length > 0 && (
+                          <span>
+                            <span className=" px-1 py-0 text-sm text-white bg-violet-700 rounded-full">
+                              {cartItems.reduce((a, c) => a + c.qty, 0)}
+                            </span>
+                          </span>
+                        )}
+                      </div>
                     </>
                   )}
                 </NavLink>

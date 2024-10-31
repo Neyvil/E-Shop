@@ -29,7 +29,6 @@ const Profile = () => {
   const [profilePic, setProfilePic] = useState(img);
 
   const { data: currentProfileData, refetch } = useCurrentProfileDetailsQuery();
-  console.log(currentProfileData)
   const passwordRules =
     "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
 
@@ -49,7 +48,7 @@ const Profile = () => {
   const changeProfileImageHandler = (event) => {
     const file = event.target.files[0];
     setImage(file);
-    setProfilePic(URL.createObjectURL(file)); // Show preview of the selected image
+    setProfilePic(URL.createObjectURL(file)); 
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
@@ -86,160 +85,153 @@ const Profile = () => {
       addToast("error", "Profile not updated");
     }
   };
-
   return (
-    <div className="h-screen flex justify-center items-center bg-[#292B4B] overflow-y-auto">
-      <section className="w-full max-w-2xl bg-[#1B1C30] rounded-3xl shadow-xl p-8">
+    <div className="min-h-screen py-20 px-4 flex justify-center items-center bg-[#292B4B]">
+      <section className="w-full max-w-2xl bg-[#1B1C30] rounded-3xl shadow-xl p-6 md:p-8">
         <div className="flex flex-col items-center">
-          <form onSubmit={submitHandler} className="w-full space-y-6">
-            <div className="relative">
-              <img
-                src={profilePic}
-                alt="user"
-                className="w-24 h-24 rounded-full bg-cover border-4 border-violet-800"
-              />
-              <input
-                type="file"
-                id="fileInput"
-                name="profileImage"
-                className="hidden"
-                onChange={changeProfileImageHandler}
-              />
-
-              <label
-                htmlFor="fileInput"
-                className=" flex space-x-1 absolute bottom-0 right-0"
-              >
-                <p className=" font-semibold text-white cursor-pointer hover:text-[#7303c0]">
-                  Change Picture
-                </p>
-
-                <SquarePen
-                  size={22}
-                  className="text-white cursor-pointer hover:text-[#7303c0]"
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-100 mb-6 text-center">
+            Profile{" "}
+            <span className="text-gradient bg-gradient-to-r from-[#a445b2] via-[#d41872] to-[#ff0066] bg-clip-text text-transparent">
+              Management
+            </span>
+          </h1>
+          
+          <form onSubmit={submitHandler} className="w-full space-y-4 md:space-y-6">
+            <div className="relative flex justify-center mb-8">
+              <div className="relative">
+                <img
+                  src={profilePic}
+                  alt="user"
+                  className="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-[#ff0066]"
                 />
-              </label>
+                <input
+                  type="file"
+                  id="fileInput"
+                  name="profileImage"
+                  className="hidden"
+                  onChange={changeProfileImageHandler}
+                />
+                <label
+                  htmlFor="fileInput"
+                  className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 flex items-center space-x-2 bg-[#292B4B] px-3 py-1 rounded-full cursor-pointer hover:bg-[#27283B] transition-colors duration-300"
+                >
+                  <p className="text-sm font-semibold text-white">Change</p>
+                  <SquarePen size={16} className="text-[#ff0066]" />
+                </label>
+              </div>
             </div>
-            <h1 className="text-3xl text-bold text-white">
-              Update Your <span className="text-[#7303c0]">Profile</span> ✍
-            </h1>
-            <hr className="border-t border-[#27283B]" />
-            <div className="space-y-4">
-              <label
-                htmlFor="username"
-                className="block text-sm font-semibold text-white"
-              >
-                Username
-                <div className="relative mt-1">
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded focus:outline-none focus:bg-white focus:text-black"
-                    placeholder="Enter Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
-                  <UserRound className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7303c0]" />
-                </div>
-              </label>
 
-              <label
-                htmlFor="email"
-                className="block text-sm font-semibold text-white"
-              >
-                Email Address
-                <div className="relative mt-1">
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded focus:outline-none focus:bg-white focus:text-black"
-                    placeholder="Enter Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7303c0]" />
-                </div>
-              </label>
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-4">
+                  Update Your <span className="text-[#ff0066]">Profile</span> ✍
+                </h2>
+                <hr className="border-t border-[#27283B] mb-6" />
+              </div>
 
-              <label
-                htmlFor="password"
-                className="block text-sm font-semibold text-white"
-              >
-                Password
-                <div className="relative mt-1">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded focus:outline-none focus:bg-white focus:text-black"
-                    placeholder="* * * * * * * *"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  {password.length > 0 && (
-                    <button
-                      type="button"
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7303c0]"
-                      onMouseDown={togglePasswordVisibility}
-                      onMouseUp={togglePasswordVisibility}
-                    >
-                      {showPassword ? <EyeOff /> : <Eye />}
-                    </button>
+              <div className="grid gap-4 md:gap-6">
+                <label className="block">
+                  <span className="text-sm font-semibold text-white mb-1 block">Username</span>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      className="w-full p-3 text-slate-300 bg-[#292B4B] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff0066] focus:border-transparent transition-all duration-300"
+                      placeholder="Enter Username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                    <UserRound className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7303c0]" />
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-semibold text-white mb-1 block">Email Address</span>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      className="w-full p-3 text-slate-300 bg-[#292B4B] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff0066] focus:border-transparent transition-all duration-300"
+                      placeholder="Enter Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7303c0]" />
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-semibold text-white mb-1 block">Password</span>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="w-full p-3 text-slate-300 bg-[#292B4B] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff0066] focus:border-transparent transition-all duration-300"
+                      placeholder="* * * * * * * *"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    {password.length > 0 && (
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7303c0]"
+                        onMouseDown={togglePasswordVisibility}
+                        onMouseUp={togglePasswordVisibility}
+                      >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                      </button>
+                    )}
+                  </div>
+                  {password.length > 0 && !isPasswordValid(password) && (
+                    <p className="text-xs text-gray-400 mt-2">{passwordRules}</p>
                   )}
-                </div>
-                {password.length > 0 && !isPasswordValid(password) && (
-                  <p className="text-xs text-gray-400 mt-2">{passwordRules}</p>
-                )}
-              </label>
+                </label>
 
-              <label
-                htmlFor="confirm"
-                className="block text-sm font-semibold text-white"
-              >
-                Confirm Password
-                <div className="relative mt-1">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    id="confirm"
-                    name="confirm"
-                    className="p-2 w-full text-slate-300 bg-[#292B4B] border border-gray-700 rounded focus:outline-none focus:bg-white focus:text-black"
-                    placeholder="* * * * * * * *"
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                  />
-                  {confirm.length > 0 && (
-                    <button
-                      type="button"
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7303c0]"
-                      onMouseDown={toggleConfirmPasswordVisibility}
-                      onMouseUp={toggleConfirmPasswordVisibility}
-                    >
-                      {showConfirmPassword ? <EyeOff /> : <Eye />}
-                    </button>
-                  )}
-                </div>
-              </label>
+                <label className="block">
+                  <span className="text-sm font-semibold text-white mb-1 block">Confirm Password</span>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      className="w-full p-3 text-slate-300 bg-[#292B4B] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff0066] focus:border-transparent transition-all duration-300"
+                      placeholder="* * * * * * * *"
+                      value={confirm}
+                      onChange={(e) => setConfirm(e.target.value)}
+                    />
+                    {confirm.length > 0 && (
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7303c0]"
+                        onMouseDown={toggleConfirmPasswordVisibility}
+                        onMouseUp={toggleConfirmPasswordVisibility}
+                      >
+                        {showConfirmPassword ? <EyeOff /> : <Eye />}
+                      </button>
+                    )}
+                  </div>
+                </label>
+              </div>
+
+              <div className="flex flex-col md:flex-row justify-between gap-4 pt-6">
+                <button
+                  disabled={isUpdating}
+                  type="submit"
+                  className="w-full md:w-[12rem] h-12 font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-full hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isUpdating ? "Updating..." : "Update Profile"}
+                </button>
+                <Link 
+                  to="/orderlist" 
+                  className="w-full md:w-[12rem] h-12 flex items-center justify-center font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-full hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  My Orders
+                </Link>
+              </div>
             </div>
-            <div className="flex justify-between pt-5">
-              <button
-                disabled={isUpdating}
-                type="submit"
-                className="w-[10rem] h-[3rem] rounded-3xl text-bold text-white bg-purple-700 hover:bg-purple-800 cursor-pointer"
-              >
-                {isUpdating ? "Updating.." : "Update"}
-              </button>
-              <Link to="/orderlist" className="w-[10rem] h-[3rem] p-3 text-center rounded-3xl text-bold text-white bg-purple-700 hover:bg-purple-800 cursor-pointer">
-                My Orders
-              </Link>
-            </div>
+
             {isUpdating && (
-              <div className="flex justify-center items-center my-1">
+              <div className="flex justify-center items-center my-4">
                 <Loader />
               </div>
             )}
-            <p className=" text-center text-white">@2024 Nabajyoti</p>
+            
+            <p className="text-center text-white text-sm mt-6">@2024 Nabajyoti</p>
           </form>
         </div>
       </section>
