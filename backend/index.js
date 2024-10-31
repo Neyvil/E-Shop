@@ -21,7 +21,7 @@ const app = express();
 // CORS configuration
 app.use(
   cors({
-    origin: ["https://e-shop-frontend-2zn6.onrender.com"], 
+    origin: ["https://e-shop-frontend-2zn6.onrender.com","https://e-shop-dwjgeaguw-neyvils-projects.vercel.app"], 
     credentials: true, 
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   })
