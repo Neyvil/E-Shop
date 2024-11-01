@@ -14,7 +14,9 @@ const Home = () => {
       {!keyword ? <Header /> : null}
 
       {isLoading ? (
-        <Loader />
+         <div className="flex justify-center items-center h-screen bg-[#1e1f3b]">
+         <Loader />
+       </div>
       ) : isError ? (
         <Message variant="error">
           {isError?.data?.message ||
