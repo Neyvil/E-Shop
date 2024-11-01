@@ -123,14 +123,15 @@ const Login = () => {
                     disabled={isLoading}
                   >
                     {isLoading ? (
-                       <div className="flex justify-center items-center h-screen bg-[#1e1f3b]">
-                       <Loader />
-                     </div>
+                      <Loader className="w-6 h-6 text-white animate-spin" />
                     ) : (
                       "Login"
                     )}
                   </button>
                 </div>
+                {isLoading?( <div className="flex justify-center items-center h-screen bg-[#1e1f3b]">
+        <Loader />
+      </div>):""}
               </div>
             )}
           </form>

@@ -306,9 +306,7 @@ const Register = () => {
                 className="w-full p-2 bg-[#ff0066] text-white rounded hover:bg-[#5f02a3] transition-colors duration-300"
                 disabled={isLoading}
               >
-                {isLoading ? ( <div className="flex justify-center items-center h-screen bg-[#1e1f3b]">
-        <Loader />
-      </div>): "Create Account"}
+                {isLoading ? "Creating...": "Create Account"}
               </button>
             </div>
           </form>
@@ -322,6 +320,9 @@ const Register = () => {
             </Link>
           </div>
         </div>
+        {isLoading?( <div className="flex justify-center items-center h-screen bg-[#1e1f3b]">
+        <Loader />
+      </div>):""}
         <div className="hidden lg:block lg:w-1/2 bg-gradient-to-br from-[#7303c0] to-[#ff0066]">
           <div className="h-full flex items-center justify-center">
             <svg
