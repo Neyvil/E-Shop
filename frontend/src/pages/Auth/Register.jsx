@@ -4,7 +4,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRegisterMutation } from "../../redux/api/usersApiSlice";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { useToast } from "../../components/Toast/ToastProvider";
-import { Eye, EyeOff, LayoutGrid, Mail, UserRound, ShieldCheck, Key } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  LayoutGrid,
+  Mail,
+  UserRound,
+  ShieldCheck,
+  Key,
+  Shield,
+} from "lucide-react";
 import Loader from "../../components/Loader";
 
 const Register = () => {
@@ -36,9 +45,9 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -60,7 +69,8 @@ const Register = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    const { username, email, password, confirmPassword, role, securityAnswer } = formData;
+    const { username, email, password, confirmPassword, role, securityAnswer } =
+      formData;
 
     if (!username || !email || !password || !role) {
       addToast("error", "Please fill all the required fields");
@@ -83,17 +93,29 @@ const Register = () => {
     }
 
     if (role === "superadmin" && !securityAnswer) {
-      addToast("error", "Security answer is required for SuperAdmin registration");
+      addToast(
+        "error",
+        "Security answer is required for SuperAdmin registration"
+      );
       return;
     }
 
     try {
-      const res = await register({ username, email, password, role, securityAnswer }).unwrap();
+      const res = await register({
+        username,
+        email,
+        password,
+        role,
+        securityAnswer,
+      }).unwrap();
       dispatch(setCredentials({ ...res }));
       navigate(redirect);
       addToast("success", "Account successfully created");
     } catch (error) {
-      addToast("error", error?.data?.message || "An error occurred during registration");
+      addToast(
+        "error",
+        error?.data?.message || "An error occurred during registration"
+      );
     }
   };
 
@@ -109,7 +131,10 @@ const Register = () => {
           </div>
           <form onSubmit={submitHandler} className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-white">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-white"
+              >
                 Username
               </label>
               <div className="relative mt-1">
@@ -122,11 +147,17 @@ const Register = () => {
                   value={formData.username}
                   onChange={handleChange}
                 />
-                <UserRound className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]" size={20} />
+                <UserRound
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]"
+                  size={20}
+                />
               </div>
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-white"
+              >
                 Email Address
               </label>
               <div className="relative mt-1">
@@ -139,11 +170,17 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                 />
-                <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]" size={20} />
+                <Mail
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]"
+                  size={20}
+                />
               </div>
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-white"
+              >
                 Password
               </label>
               <div className="relative mt-1">
@@ -169,7 +206,10 @@ const Register = () => {
               </p>
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-white">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-white"
+              >
                 Confirm Password
               </label>
               <div className="relative mt-1">
@@ -187,12 +227,19 @@ const Register = () => {
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
             </div>
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-white">
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-white"
+              >
                 Role
               </label>
               <div className="relative mt-1">
@@ -206,12 +253,34 @@ const Register = () => {
                   <option value="user">User</option>
                   <option value="superadmin">SuperAdmin</option>
                 </select>
-                <ShieldCheck className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]" size={20} />
+                <ShieldCheck
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]"
+                  size={20}
+                />
               </div>
             </div>
             {formData.role === "superadmin" && (
               <div>
-                <label htmlFor="securityAnswer" className="block text-sm font-medium text-white">
+                <label
+                  htmlFor="securityAnswer"
+                  className="block text-sm font-medium text-white"
+                >
+                  Security Question
+                </label>
+                <div className="relative mt-1">
+                  <p
+                    className="w-full p-2 font-serif rounded bg-[#1B1C30] text-[#ff0066]"
+                    onChange={handleChange}
+                  > Who is Admin MJ ? </p>
+                  <Shield
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]"
+                    size={20}
+                  />
+                </div>
+                <label
+                  htmlFor="securityAnswer"
+                  className="block text-sm font-medium text-white"
+                >
                   Security Answer
                 </label>
                 <div className="relative mt-1">
@@ -224,7 +293,10 @@ const Register = () => {
                     value={formData.securityAnswer}
                     onChange={handleChange}
                   />
-                  <Key className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]" size={20} />
+                  <Key
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]"
+                    size={20}
+                  />
                 </div>
               </div>
             )}
@@ -240,17 +312,43 @@ const Register = () => {
           </form>
           <div className="text-center text-white">
             Already have an account?{" "}
-            <Link to={redirect ? `/login?redirect=${redirect}` : "/login"} className="text-[#ff0066] hover:underline">
+            <Link
+              to={redirect ? `/login?redirect=${redirect}` : "/login"}
+              className="text-[#ff0066] hover:underline"
+            >
               Sign In
             </Link>
           </div>
         </div>
         <div className="hidden lg:block lg:w-1/2 bg-gradient-to-br from-[#7303c0] to-[#ff0066]">
           <div className="h-full flex items-center justify-center">
-            <svg className="w-2/3 h-2/3 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 15C15.866 15 19 11.866 19 8C19 4.13401 15.866 1 12 1C8.13401 1 5 4.13401 5 8C5 11.866 8.13401 15 12 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 15V23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9 18H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg
+              className="w-2/3 h-2/3 text-white"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 15C15.866 15 19 11.866 19 8C19 4.13401 15.866 1 12 1C8.13401 1 5 4.13401 5 8C5 11.866 8.13401 15 12 15Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M12 15V23"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9 18H15"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
         </div>
