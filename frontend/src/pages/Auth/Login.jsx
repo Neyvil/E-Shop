@@ -129,9 +129,7 @@ const Login = () => {
                     )}
                   </button>
                 </div>
-                {isLoading?( <div className="flex justify-center items-center h-screen bg-[#1e1f3b]">
-        <Loader />
-      </div>):""}
+                
               </div>
             )}
           </form>
