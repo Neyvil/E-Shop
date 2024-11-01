@@ -73,6 +73,7 @@ const UserList = () => {
 
   return (
     <div className="p-6 bg-[#1e1f3b] min-h-screen">
+      <AdminMenu />
       <h1 className="text-4xl font-bold text-gray-100 mb-8 text-center"> User <span className="text-gradient bg-gradient-to-r from-[#a445b2] via-[#d41872] to-[#ff0066] bg-clip-text text-transparent">
                   Management
                 </span></h1>
