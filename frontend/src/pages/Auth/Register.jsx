@@ -201,9 +201,14 @@ const Register = () => {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              <p className="text-xs text-gray-400 mt-1">
-                8-12 characters, uppercase, lowercase, number, special character
-              </p>
+              {validatePassword ? (
+                <p className="text-xs text-gray-400 mt-1">
+                  8-12 characters, uppercase, lowercase, number, special
+                  character
+                </p>
+              ) : (
+                " "
+              )}
             </div>
             <div>
               <label
@@ -271,7 +276,10 @@ const Register = () => {
                   <p
                     className="w-full p-2 font-serif rounded bg-[#1B1C30] text-[#ff0066]"
                     onChange={handleChange}
-                  > Who is Admin MJ ? </p>
+                  >
+                    {" "}
+                    Who is Admin MJ ?{" "}
+                  </p>
                   <Shield
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#ff0066]"
                     size={20}
@@ -306,7 +314,7 @@ const Register = () => {
                 className="w-full p-2 bg-[#ff0066] text-white rounded hover:bg-[#5f02a3] transition-colors duration-300"
                 disabled={isLoading}
               >
-                {isLoading ? "Creating...": "Create Account"}
+                {isLoading ? "Creating..." : "Create Account"}
               </button>
             </div>
           </form>
@@ -320,7 +328,7 @@ const Register = () => {
             </Link>
           </div>
         </div>
-        
+
         <div className="hidden lg:block lg:w-1/2 bg-gradient-to-br from-[#7303c0] to-[#ff0066]">
           <div className="h-full flex items-center justify-center">
             <svg
