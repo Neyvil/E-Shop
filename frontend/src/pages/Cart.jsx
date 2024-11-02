@@ -49,10 +49,7 @@ const Cart = () => {
                       <img
                         src={
                           item.productImage
-                            ? `http://localhost:5000/${item.productImage.replace(
-                                /\\/g,
-                                "/"
-                              )}`
+                            ? item.productImage
                             : Default
                         }
                         alt={item.name}

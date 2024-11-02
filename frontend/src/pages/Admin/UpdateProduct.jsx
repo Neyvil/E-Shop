@@ -341,19 +341,7 @@ const UpdateProduct = () => {
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Quantity</label>
-              <input
-                type="number"
-                name="quantity"
-                value={quantity}
-                onWheel={(e) => e.target.blur()}
-                onChange={(e) => setQuantity(e.target.value)}
-                className="w-full p-3 bg-[#292B4B] rounded-lg focus:ring-2 focus:ring-[#7303c0] transition-all"
-                placeholder="Enter quantity"
-                required
-              />
-            </div>
+            
 
             <div>
               <label className="block text-sm font-medium mb-2">Brand</label>
