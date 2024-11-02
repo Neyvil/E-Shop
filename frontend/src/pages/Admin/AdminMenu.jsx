@@ -93,7 +93,7 @@ const AdminMenu = () => {
           <li className="mt-3 hover:text-[#7303c0] text-center ">
             <NavLink
               className="text-white  cursor-pointer "
-              to="/admin/userlist"
+              to="/admin/orderlist"
               style={({ isActive }) => ({
                 color: isActive ? "darkviolet" : "white",
               })}
