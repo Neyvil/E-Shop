@@ -7,7 +7,7 @@ import AdminMenu from "./AdminMenu.jsx";
 import img from "../../image/img1.jpg";
 
 const AllProducts = () => {
-  const { data: products, isLoading, isError } = useAllProductsQuery();
+  const { data: products, isLoading, isError,refetch } = useAllProductsQuery();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -23,6 +23,7 @@ const AllProducts = () => {
             product.name.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
+      refetch();
     }
   }, [products, selectedCategory, searchTerm]);
 

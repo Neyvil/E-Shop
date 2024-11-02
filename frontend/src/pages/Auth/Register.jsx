@@ -314,7 +314,7 @@ const Register = () => {
                 className="w-full p-2 bg-[#ff0066] text-white rounded hover:bg-[#5f02a3] transition-colors duration-300"
                 disabled={isLoading}
               >
-                {isLoading ? "Creating..." : "Create Account"}
+                {isLoading ? <Loader/> : "Create Account"}
               </button>
             </div>
           </form>
