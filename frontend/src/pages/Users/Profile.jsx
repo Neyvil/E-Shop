@@ -217,7 +217,7 @@ const Profile = () => {
                   {isUpdating ? "Updating..." : "Update Profile"}
                 </button>
                 <Link 
-                  to="/orderlist" 
+                  to="/cart" 
                   className="w-full md:w-[12rem] h-12 flex items-center justify-center font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-full hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:-translate-y-1"
                 >
                   My Orders
