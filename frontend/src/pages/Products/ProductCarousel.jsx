@@ -56,7 +56,7 @@ const ProductCarousel = () => {
                 <img
                   src={
                     productImage
-                      ? `https://e-shopbackend-bnov.onrender.com/${productImage.replace(/\\/g, "/")}`
+                      ? productImage
                       : img
                   }
                   alt={name}
