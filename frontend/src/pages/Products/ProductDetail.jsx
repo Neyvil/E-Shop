@@ -173,13 +173,7 @@ const ProductDetail = () => {
                   >
                     {product.countInStock === 0 ? 'Out of Stock' : 'Add to Cart'}
                   </button>
-                  <button
-                    onClick={buyHandler}
-                    disabled={product.countInStock === 0}
-                    className="flex-1 bg-gradient-to-r from-[#7303c0] to-[#8536d0] hover:from-[#8536d0] hover:to-[#7303c0] text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Buy Now
-                  </button>
+                  
                 </div>
               </div>
             </div>
