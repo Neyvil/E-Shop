@@ -49,7 +49,7 @@ const UpdateProduct = () => {
       setCategory(productData.category?._id || "");
       setSelectedCategoryPath(productData.category?.path || []);
       if (productData.productImage) {
-        setImagePreview(`https://e-shopbackend-bnov.onrender.com/${productData.productImage.replace(/\\/g, "/")}`);
+        setImagePreview(productData.productImage);
       }
 
       // Handle category-specific fields
