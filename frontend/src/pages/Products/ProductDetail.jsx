@@ -134,7 +134,6 @@ const ProductDetail = () => {
                   { icon: Clock, label: "Added", value: moment(product.createAt).fromNow() },
                   { icon: Star, label: "Reviews", value: product.numReviews },
                   { icon: Star, label: "Rating", value: product.rating.toFixed(2) },
-                  { icon: ShoppingCart, label: "Quantity", value: product.quantity },
                   { icon: Box, label: "In Stock", value: product.countInStock }
                 ].map((item, index) => (
                   <div key={index} className="flex items-center space-x-3 bg-[#1e1f3b]/50 p-3 rounded-xl">

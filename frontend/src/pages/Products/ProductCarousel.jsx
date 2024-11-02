@@ -85,9 +85,7 @@ const ProductCarousel = () => {
                       <h1 className="flex items-center mb-2">
                         <FaStar className="mr-2" /> Rating: {Math.round(rating)}
                       </h1>
-                      <h1 className="flex items-center mb-2">
-                        <FaShoppingCart className="mr-2" /> Quantity: {quantity}
-                      </h1>
+                      
                       <h1 className="flex items-center mb-2">
                         <FaBox className="mr-2" /> In Stock: {countInStock}
                       </h1>
